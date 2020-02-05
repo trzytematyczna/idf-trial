@@ -1,47 +1,51 @@
 library(jsonlite)
 library(tidytext)
 library(dplyr)
-library(forcats)
+#library(forcats)
 library(ggplot2)
+library(stringr)
 
 json_data <- fromJSON(txt = "uk_parliament_climatechange.json")$speeches
 
+discussions_words <- json_data %>% 
+  unnest_tokens(word, text) %>%
+  filter(!str_detect(word, "^[0-9]*$")) %>%
+  anti_join(stop_words) %>% #removing stop words
+#  mutate(word = SnowballC::wordStem(word)) %>% # tokens -> roots (Porter stemming algorithm) 
+  count(discussion_title, word, sort = TRUE)
 
-speeches_words <- json_data %>% 
-                  unnest_tokens(word, text) %>% 
-                  count(id, word, sort = TRUE)
+discussions <- discussions_words %>%
+  bind_tf_idf(word, discussion_title, n) %>%
+  arrange(desc(tf_idf))  
 
-total_words <- speeches_words %>% 
-              group_by(id) %>% 
-               summarize(total = sum(n))
+discussions <- discussions %>%  arrange(desc(discussion_title, tf_idf))
 
-#speeches_words <- left_join(speeches_words, total_words)
+number_of_top<-1 #number of top words
+discussions_top <- discussions %>% 
+  group_by(discussion_title) %>% 
+  arrange(discussion_title, desc(tf_idf)) %>% 
+  top_n(number_of_top, tf_idf)
 
-
-#speeches_frequency <- speeches_words %>% 
-#                    group_by(id) %>%
-#                    mutate("tf" = n/total)
-
-
-speeches <- speeches_words %>%
-            bind_tf_idf(word, id, n) %>%
-            arrange(desc(tf_idf))
+ # length(discussions_top$word)
+ # length(unique(discussions_top$word))
 
 
-speeches_plot <- speeches_words %>%
-  bind_tf_idf(word, id, n) %>%
-  mutate(word = fct_reorder(word, tf_idf))# %>%
-  #mutate(author = factor(author, levels = c("Galilei, Galileo",
-  ##                                          "Huygens, Christiaan", 
-   #                                         "Tesla, Nikola",
-   #                                         "Einstein, Albert")))
-speeches_plot %>% 
-  group_by(id) %>% 
-  top_n(15, tf_idf) %>% 
-  ungroup() %>%
-  mutate(word = reorder(word, tf_idf)) %>%
-  ggplot(aes(word, tf_idf, fill = id)) +
-  geom_col(show.legend = FALSE) +
-  labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~id, ncol = 2, scales = "free") +
-  coord_flip()
+discussions_top <-discussions_top %>% 
+  inner_join(json_data%>% select(date, discussion_title) %>% distinct(), by = "discussion_title")
+
+json_data$id
+
+discussions_count <- json_data %>% 
+  count(discussion_title, date)
+  # group_by(discussion_title, date) %>%
+  # summarise(count = n())
+  
+
+ggplot(discussions_count, aes(x=date)) + 
+  geom_line(aes(y=n)) + 
+  labs(title="Time Series Chart",
+       x="Date",
+       y="Number of speakers")
+
+
+
