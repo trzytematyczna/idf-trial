@@ -3,6 +3,11 @@ library(tidytext)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(wordcloud)
+library(gridExtra)
+
+
+#all speeches as corpus -> one document = speech --> tf-idf --> devide topics according to weeks
 
 json_data <- fromJSON(txt = "uk_parliament_climatechange.json")$speeches
 json_data$date <- as.Date(json_data$date , format = "%Y-%m-%d")
@@ -30,7 +35,8 @@ week <- week_words %>%
   bind_tf_idf(word, week_start, n) %>%
   arrange(desc(tf_idf))  
 
-week <- week %>%  arrange(desc(week_start, tf_idf))
+week <- week %>%  
+  arrange(desc(week_start, tf_idf))
 
 number_of_top<-15 #number of top words
 week_top <- week %>% 
@@ -40,3 +46,25 @@ week_top <- week %>%
 
 
 write.csv2(week_top, file = paste(getwd(),"/top15_topics_per_week.csv", sep=""), quote=FALSE, row.names = FALSE)
+
+week1 <- week_top[week_top$week_start=="2016-01-04",]
+week2 <- week_top[week_top$week_start=="2016-01-18",]
+week3 <- week_top[week_top$week_start=="2016-03-14",]
+week4 <- week_top[week_top$week_start=="2016-07-11",]
+
+par(mfrow=c(2,2))
+sc<-c(1,2)
+p1 <- wordcloud(words = week1$word, freq = week1$tf_idf, scale = sc,# min.freq = 1, max.words=200, 
+          random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+p2 <- wordcloud(words = week2$word, freq = week2$tf_idf,scale = sc,# min.freq = 1, max.words=200, 
+          random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+p3 <- wordcloud(words = week3$word, freq = week3$tf_idf,scale = sc,# min.freq = 1, max.words=200, 
+          random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+p4 <- wordcloud(words = week4$word, freq = week4$tf_idf,scale = sc,# min.freq = 1, max.words=200, 
+          random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+
+# grid.arrange(p1, p2, p3, p4, ncol=2)
