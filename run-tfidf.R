@@ -1,7 +1,6 @@
 library(jsonlite)
 library(tidytext)
 library(dplyr)
-#library(forcats)
 library(ggplot2)
 library(stringr)
 
@@ -27,9 +26,6 @@ discussions_top <- discussions %>%
   arrange(discussion_title, desc(tf_idf)) %>% 
   top_n(number_of_top, tf_idf)
 
- # length(discussions_top$word)
- # length(unique(discussions_top$word))
-
 
 discussions_top <-discussions_top %>% 
   inner_join(json_data%>% select(date, discussion_title) %>% distinct(), by = "discussion_title")
@@ -38,10 +34,7 @@ write.csv2(discussions_top, file = "/home/monika/Documents/UMPC/Timeline/idf-tri
 
 discussions_count <- json_data %>% 
   count(discussion_title, date)
-  # group_by(discussion_title, date) %>%
-  # summarise(count = n())
   
-
 ggplot(discussions_count, aes(x=date)) + 
   geom_line(aes(y=n)) + 
   labs(title="Time Series Chart",
@@ -55,3 +48,6 @@ ggplot(discussions_count, aes(x=date)) +
 # unique(json_data[c("date","discussion_title")]) ##same discusssions on different days 
 # length(unique(json_data$date)) #344
 # length(unique(json_data$discussion_title)) #560
+# length(discussions_top$word)
+# length(unique(discussions_top$word))
+
