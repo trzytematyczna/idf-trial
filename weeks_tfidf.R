@@ -5,7 +5,7 @@ library(ggplot2)
 library(stringr)
 library(wordcloud)
 library(gridExtra)
-
+db1
 
 #all speeches as corpus -> one document = speech --> tf-idf --> devide topics according to weeks
 
