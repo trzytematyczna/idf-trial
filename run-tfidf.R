@@ -1,8 +1,8 @@
-library(jsonlite)
-library(tidytext)
-library(dplyr)
-library(ggplot2)
-library(stringr)
+require(jsonlite)
+require(tidytext)
+require(dplyr)
+require(ggplot2)
+require(stringr)
 
 json_data <- fromJSON(txt = "uk_parliament_climatechange.json")$speeches
 
