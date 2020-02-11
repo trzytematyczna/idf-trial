@@ -1,6 +1,8 @@
 require(jsonlite)
 require(timeDate)
-
+require(tidyr)
+require(purrr)
+require(dplyr)
 
 fromYear <- 2016
 toYear <- 2019
@@ -15,7 +17,20 @@ for(gyear in fromYear:toYear){
     print(gmonth)
     toDate <- timeLastDayInMonth(fromDate)
     print(gmonth)
-    data <- rbind(data, fromJSON(txt = paste(getwd(),"/data/guardian-data/guardian_", fromDate,"-", toDate, sep="")))
+    newData <- fromJSON(txt = paste(getwd(),"/data/guardian-data/guardian_", fromDate,"-", toDate, sep=""))
+    newData$og_fields<-NULL
+    data <- rbind(data, newData)
     print(gmonth)
   }
 }
+
+data_tib <- as_tibble(data, validate = FALSE)
+data_raw <- enframe(unlist(data))
+
+data$og_fields<-NULL
+asd <-  data %>% 
+        discard(is_empty) %>% 
+        map_if(is.data.frame, list) %>% 
+        as_tibble()
+
+
