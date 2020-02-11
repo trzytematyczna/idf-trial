@@ -3,34 +3,39 @@ require(timeDate)
 require(tidyr)
 require(purrr)
 require(dplyr)
+require(ggplot2)
 
 fromYear <- 2016
 toYear <- 2019
-data<-fromJSON(txt=paste(getwd(),"/data/guardian-data/guardian_2016-01-01-2016-01-31",sep=""))
-data2<-fromJSON(txt=paste(getwd(),"/data/guardian-data/guardian_2016-02-01-2016-02-29",sep=""))
+
+sum<-0
 data <- data.frame()
 for(gyear in fromYear:toYear){
   print(gyear)
   for(gmonth in 1:12){
-    print(gmonth)
     fromDate <- paste(gyear,"-", sprintf("%02d", gmonth),"-01", sep="")
-    print(gmonth)
     toDate <- timeLastDayInMonth(fromDate)
-    print(gmonth)
-    newData <- fromJSON(txt = paste(getwd(),"/data/guardian-data/guardian_", fromDate,"-", toDate, sep=""))
-    newData$og_fields<-NULL
+    newData <- read.csv2(paste(getwd(),"/data/guardian_csv/guardian_", fromDate,"-", toDate, ".csv", sep=""), sep=",")
     data <- rbind(data, newData)
-    print(gmonth)
   }
 }
 
-data_tib <- as_tibble(data, validate = FALSE)
-data_raw <- enframe(unlist(data))
+data$og_fields.og.description <-NULL
+data$og_fields.og.image<-NULL
+data$og_fields.og.title<-NULL
+data$og_fields.og.type<-NULL
+data$og_fields.og.url<-NULL
+data$comments<-NULL
 
-data$og_fields<-NULL
-asd <-  data %>% 
-        discard(is_empty) %>% 
-        map_if(is.data.frame, list) %>% 
-        as_tibble()
+data %>% write.csv2(paste(getwd(),"/data/guardian-articles.csv", sep=''))
+data %>% write.csv2(paste(getwd(),"/data/guardian-articles-with-comments.csv", sep=''))
 
+data$date_published..date<-as.POSIXct((data$date_published..date/1000), origin="1970-01-01")
+grouped <- data %>% 
+  count(format(date_published..date,'%y-%m'))
 
+colnames(grouped)<-c("art_date_published","art_count")
+
+p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) + geom_col() 
+
+p + theme(axis.text.x = element_text(angle = 45))
