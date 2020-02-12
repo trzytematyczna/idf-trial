@@ -8,7 +8,6 @@ require(ggplot2)
 fromYear <- 2016
 toYear <- 2019
 
-sum<-0
 data <- data.frame()
 for(gyear in fromYear:toYear){
   print(gyear)
@@ -20,6 +19,8 @@ for(gyear in fromYear:toYear){
   }
 }
 
+data %>% write.csv2(paste(getwd(),"/data/guardian-articles-with-comments.csv", sep=''), row.names = FALSE)
+
 data$og_fields.og.description <-NULL
 data$og_fields.og.image<-NULL
 data$og_fields.og.title<-NULL
@@ -27,8 +28,7 @@ data$og_fields.og.type<-NULL
 data$og_fields.og.url<-NULL
 data$comments<-NULL
 
-data %>% write.csv2(paste(getwd(),"/data/guardian-articles.csv", sep=''))
-data %>% write.csv2(paste(getwd(),"/data/guardian-articles-with-comments.csv", sep=''))
+data %>% write.csv2(paste(getwd(),"/data/guardian-articles.csv", sep=''), row.names = FALSE)
 
 data$date_published..date<-as.POSIXct((data$date_published..date/1000), origin="1970-01-01")
 grouped <- data %>% 
