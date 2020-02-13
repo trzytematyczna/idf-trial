@@ -11,16 +11,27 @@ library(rlang)
 # 2. each document's text is in column named "text"
 # 3. text of each document is a string --> data$text<-as.character(data$text)
 
-run_tfidf <- function(data, documentColumn) {
+run_tfidf <- function(data, documentColumn, roots = FALSE) {
+  
   data$text<-as.character(data$text)
+  
+  if (roots == TRUE){
+    wordsFreq <- data %>% 
+      unnest_tokens(word, text, to_lower = TRUE) %>%
+      filter(!str_detect(word, "^[0-9]*$")) %>%
+      anti_join(stop_words) %>% #removing stop words
+      mutate(word = SnowballC::wordStem(word)) %>% # tokens -> roots (Porter stemming algorithm)
+      count(!!sym(documentColumn), word, sort = TRUE)
+  }
+  else{
   wordsFreq <- data %>% 
     unnest_tokens(word, text, to_lower = TRUE) %>%
     filter(!str_detect(word, "^[0-9]*$")) %>%
     anti_join(stop_words) %>% #removing stop words
-     mutate(word = SnowballC::wordStem(word)) %>% # tokens -> roots (Porter stemming algorithm)
     count(!!sym(documentColumn), word, sort = TRUE)
-  
-  tfidf_data <- wordsFreq %>%
+  }
+
+    tfidf_data <- wordsFreq %>%
     bind_tf_idf(word, !!sym(documentColumn), n) %>%
     arrange(desc(!!sym(documentColumn), tf_idf))  
   
