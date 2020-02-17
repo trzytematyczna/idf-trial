@@ -33,7 +33,7 @@ data$comments<-NULL
 data %>% write.csv2(paste(getwd(),"/data/guardian-articles.csv", sep=''), row.names = FALSE)
 
 
-############
+############distribution per month
 grouped <- data %>% 
   count(format(date_published..date,'%y-%m'))
 
