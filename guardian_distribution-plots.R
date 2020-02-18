@@ -81,7 +81,7 @@ distribution_article_section <- function(data, sectionName, saveToFile=FALSE){
 #music
 
 selected_articles<-data[data$article_section=="Children's books",]%>%
-  rbind(data%>%filter(article_section=="Music")%>%top_n(1)) %>%
+  rbind(data%>%filter(article_section=="Music")%>% filter(text!="")%>% top_n(1)) %>%
   rbind(data%>%filter(article_section=="Australia news")%>%top_n(1))
 
 
@@ -109,3 +109,5 @@ selected_articles<-rbind(selected_articles, top_n(data%>%
 
 
 ## 17 articles without text length(data%>%filter(text==""))
+
+write.csv2(selected_articles,"./results/guardian_articles_selected.csv", row.names = FALSE)
