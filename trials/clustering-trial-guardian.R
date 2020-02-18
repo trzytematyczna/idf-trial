@@ -1,5 +1,5 @@
 library(tm)
-
+library(quateda)
 
 csv_data <- read.csv2(paste(getwd(),"/data/guardian-articles.csv",sep=''))
 data<-csv_data
