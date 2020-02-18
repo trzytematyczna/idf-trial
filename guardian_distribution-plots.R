@@ -84,6 +84,7 @@ selected_articles<-data[data$article_section=="Children's books",]%>%
   rbind(data%>%filter(article_section=="Music")%>%top_n(1)) %>%
   rbind(data%>%filter(article_section=="Australia news")%>%top_n(1))
 
+
 section_data <- data %>% 
   filter(article_section=="Environment") %>% 
   count(format(date,'%y-%m-%d')) 
@@ -95,8 +96,16 @@ selected_articles<-rbind(selected_articles, top_n(data%>%
                            filter(format(date,"%y-%m-%d")==env_date[1])%>%
                            filter(article_section=="Environment"),1))
 
+section_data <- data %>% 
+  filter(article_section=="Opinion") %>% 
+  count(format(date,'%y-%m-%d')) 
+colnames(section_data)<-c("art_date_published","art_count")
+opin_date<-filter(section_data,art_count== max(section_data$art_count))%>%
+  pull(art_date_published)
+
+selected_articles<-rbind(selected_articles, top_n(data%>%
+                                                    filter(format(date,"%y-%m-%d")==opin_date[1])%>%
+                                                    filter(article_section=="Opinion"),1))
 
 
-
-
-
+## 17 articles without text length(data%>%filter(text==""))
