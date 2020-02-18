@@ -1,4 +1,6 @@
 library(timeDate)
+library(dplyr)
+library(ggplot2)
 
 data <- read.csv2(paste(getwd(),"/data/guardian-articles.csv",sep=''))
 names(data)[names(data) == "X_id..oid"] <- "id"
@@ -31,8 +33,7 @@ p + theme(axis.text.x = element_text(angle = 45)) + xlab("Date") + ylab("# of ar
 ggsave(paste(getwd(),"/plots/articles-per-date.pdf", sep=''))
 
 
-grouped <- data %>% group_by(article_section) %>%   
-  count() 
+grouped <- data %>% count(article_section) 
 
 colnames(grouped)<-c("art_section","art_count")
 
@@ -53,30 +54,49 @@ ggsave(paste(getwd(),"/plots/articles-per-section-noenv.pdf", sep=''))
 
 
 
-distribution_article_section <- function(data, sectionName, save=FALSE){
-  print(class(sectionName))
-  section_data <- data[data$article_section==sectionName,]
-  section_data <- section_data %>% 
+distribution_article_section <- function(data, sectionName, saveToFile=FALSE){
+  section_data <- data %>% 
+    filter(article_section==sectionName) %>% 
     count(format(date,'%y-%m-%d')) 
   colnames(section_data)<-c("art_date_published","art_count")
   
-  p <- ggplot(section_data, aes(x = art_date_published, y = art_count)) + geom_col() 
-  p + theme(axis.text.x = element_text(angle = 45)) + xlab("Date") + ylab("# of articles") +ggtitle(paste("Section:", sectionName))
+  p <- ggplot(section_data, aes(x = art_date_published, y = art_count)) + 
+    geom_col() + 
+    theme(axis.text.x = element_text(angle = 45)) + 
+    xlab("Date") + ylab("# of articles") +
+    ggtitle(paste("Section:", sectionName))
   
-  # if(save==TRUE){
-  #   ggsave(paste(getwd(),"/plots/section",sectionName,".pdf", sep=''), plot = last_plot())
-  # }
+  if(saveToFile){
+    ggsave(paste("./plots/sectionTEST",sectionName,".pdf", sep=''), plot = last_plot())
+  }
+  p
 }
 
 
 #####Articles selection
-##min number of articles: Children's Books (1)
-##max number of articles: Environment --> 1 from max day
-##max number of articles (2nd): Opiniton
+##min number of articles: Children's Books (1) 
+##max number of articles: Environment --> 1 from max day  17-01-19 19-04-23
+##max number of articles (2nd): Opiniton 19-03-15 
 ##australia news
 #music
-selected_articles<-data[data$article_section=="Children's books",]
+
+selected_articles<-data[data$article_section=="Children's books",]%>%
+  rbind(data%>%filter(article_section=="Music")%>%top_n(1)) %>%
+  rbind(data%>%filter(article_section=="Australia news")%>%top_n(1))
+
+section_data <- data %>% 
+  filter(article_section=="Environment") %>% 
+  count(format(date,'%y-%m-%d')) 
+colnames(section_data)<-c("art_date_published","art_count")
+env_date<-filter(section_data,art_count== max(section_data$art_count))%>%
+  pull(art_date_published)
+
+selected_articles<-rbind(selected_articles, top_n(data%>%
+                           filter(format(date,"%y-%m-%d")==env_date[1])%>%
+                           filter(article_section=="Environment"),1))
 
 
 
-###section_data%>% filter(art_count== max(section_data$art_count))
+
+
+

@@ -91,7 +91,8 @@ data$text<-as.character(data$text)
   dfmat_data <- dfmat_data[ntoken(dfmat_data) > 0,]
   dfmat_data_tfidf <- dfm_tfidf(dfmat_data)
   
-  tstat1 <- textstat_simil(dfmat_data_tfidf, method = "cosine", margin = "features", min_simil = 0.3)
+  tstat1 <- textstat_simil(dfmat_data_tfidf, method = "cosine", margin = "features", 
+                           min_simil = 0.3)
 
   
   # wordDistMat <- dist(wordDfm)
