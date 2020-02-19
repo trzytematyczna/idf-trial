@@ -1,6 +1,6 @@
 library (rjson)
 
-data <- fromJSON (file = "sample_guardian-article-wcomments.json")
+data <- fromJSON (file = "./data/sample_guardian-article-wcomments.json")
 
 articles <- data.frame ()
 comments <- data.frame ()

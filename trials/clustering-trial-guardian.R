@@ -73,6 +73,7 @@ data$text<-as.character(data$text)
 ######105614210 (tm) vs 13239675 (quanteda)
   
   library(quanteda)
+  library(topicmodels)
   
   
   csv_data <- read.csv2(paste(getwd(),"/data/guardian-articles.csv",sep=''))
@@ -82,13 +83,41 @@ data$text<-as.character(data$text)
   names(data)[names(data) == "X_id..oid"] <- "docid"
   names(data)[names(data) == "text"] <- "text"
   
-  dfm_data <- corpus(data)
-  dfmat_data <- dfm(dfm_data, remove_punct = TRUE, remove = stopwords('en')) %>% 
+  dfmat_data <- corpus(data)
+  data_docid <-data$docid 
+  docnames(dfmat_data) <- data_docid
+  # summary(corp_data, 1)
+  dfmat_data <- dfm(dfmat_data, remove_punct = TRUE, remove = stopwords('en')) %>% 
     # dfm_remove(c('*-time', '*-timeUpdated', 'GMT', 'BST')) %>% 
-    dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
-             max_docfreq = 0.1, docfreq_type = "prop")
+  dfm_trim(min_termfreq = 0.99, termfreq_type = "quantile", 
+             max_docfreq = 0.3, docfreq_type = "prop")
   
   dfmat_data <- dfmat_data[ntoken(dfmat_data) > 0,]
+  
+  ###LDA
+  dtm <- convert(dfmat_data, to = "topicmodels")
+  lda <- LDA(dtm, k = 10)
+  topicNames <- apply(terms(lda, 2), 2, paste, collapse = " ")
+  # terms(lda, 15)
+  docvars(dfmat_data, 'topic') <- topics(lda)
+  # head(topics(lda), 10)
+  tmResult <- posterior(lda)
+  theta <- tmResult$topics 
+  examples_articles<- theta[selected_articles$id,]
+  colnames(examples_articles) <- topicNames
+  # attributes(tmResult)
+  N<-length(examples_articles)
+  vizDataFrame <- melt(cbind(data.frame(examples_articles), document = factor(1:N)), variable.name = "topic", id.vars = "document")  
+  
+  ggplot(data = vizDataFrame, aes(topic, value, fill = document), ylab = "proportion") + 
+    geom_bar(stat="identity") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  
+    coord_flip() +
+    facet_wrap(~ document, ncol = N)
+  guardian_articles<-read.csv2("./results/guardian_articles_selected.csv")
+  #guardian_articles 5cc18ecaa2c3615169989ee1
+  ##
+  
   dfmat_data_tfidf <- dfm_tfidf(dfmat_data)
   
   tstat1 <- textstat_simil(dfmat_data_tfidf, method = "cosine", margin = "features", 

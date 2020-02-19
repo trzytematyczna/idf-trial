@@ -43,7 +43,7 @@ run_topn <- function(tfidf_data, documentColumn, number_of_top){
     topn_data <- tfidf_data %>% 
       group_by(!!sym(documentColumn)) %>% 
       arrange(!!sym(documentColumn), desc(tf_idf)) %>% 
-      top_n(number_of_top, tf_idf)
+      top_n(n=number_of_top, wt=tf_idf)
     return(topn_data)
 }
 
