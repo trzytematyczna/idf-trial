@@ -1,22 +1,25 @@
 library (rjson)
+library(data.table)
 
 # data <- fromJSON (file = "./data/sample_guardian-article-wcomments.json")
 
+####function SKIPS all articles without text
 readGuardianJson<- function(data){
     # data <- fromJSON (fileName)
     articles <- data.frame ()
     comments <- data.frame ()
     
     for (article in data) {
-        article <- data[[2]]
         ## FORMAT FIELDS
+        if(!is.null(article$text)){
         article$id <- article[["_id"]][[1]]
-        
+        print(article$id)        
         article$authors_nb <- length (article$authors)
         article$authors <- paste (article$authors, collapse = ", ")
         article$tags_nb <- length (article$article_tags)
         article$tags <- paste (article$article_tags, collapse = ", ")
         article$section <- article$article_section
+        
         
         article$date_published <- as.Date (as.POSIXct (article$date_published[[1]]/1000, origin = "1970-01-01"))
         article$date_modified <- as.Date (as.POSIXct (article$date_modified[[1]]/1000, origin = "1970-01-01"))
@@ -29,7 +32,7 @@ readGuardianJson<- function(data){
     
         ## SELECT FIELDS
         selected_article <- article [c("id", "type", "url", "authors", "authors_nb", "section", "tags", "tags_nb", "date_published", "date_modified", "share_count", "comment_nb", "title", "description", "text")]
-        articles <- rbind (articles, as.data.frame (selected_article))
+        articles <- rbind (articles, as.data.frame(selected_article))
     
         ## LOOP THROUGH COMMENTS
         if (! is.null (article$comments)) {
@@ -48,14 +51,13 @@ readGuardianJson<- function(data){
             }
         }
     }
-    
+    }
     result<-list(articles, comments)
     # write.csv (articles, "articles.csv", row.names = FALSE)
     # write.csv (comments, "comments.csv", row.names = FALSE)
 }
 
 files<-list.files("./data/guardian-data/")
-files<-files[1:2]
 res_articles<-data.frame()
 res_comments<-data.frame()
 for(gfile in files){
@@ -64,6 +66,6 @@ for(gfile in files){
     res<-readGuardianJson(data)
     res_articles<-rbind(res_articles,res[[1]])
     res_comments<-rbind(res_comments,res[[2]])
+    write.csv2(res_articles,"articles_.csv", row.names = FALSE, append = TRUE)
+    write.csv2(res_comments,"comments_.csv", row.names = FALSE, append = TRUE)
 }
-write.csv2(res_articles,"articles_.csv", row.names = FALSE)
-write.csv2(res_comments,"comments_.csv", row.names = FALSE)
