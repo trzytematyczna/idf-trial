@@ -1,7 +1,8 @@
 # History files
 .Rhistory
 .Rapp.history
-guardian-articles-with-comments.csv
+
+./data/full_comments_guardian.csv
 # Session Data files
 .RData
 
