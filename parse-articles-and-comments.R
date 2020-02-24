@@ -4,7 +4,6 @@ library(data.table)
 library(dplyr)
 
 # data <- fromJSON (file = "./data/sample_guardian-article-wcomments.json")
-# for (d in data) {asd<-unique(c(asd,names(d)))}
 
 smart_rbind <- function(df, row_values) {
     # Create prototype row (empty values, but names from the df)
@@ -26,7 +25,6 @@ smart_rbind <- function(df, row_values) {
 }
 
 
-####function SKIPS all articles without text
 readGuardianJson<- function(data){
     # data <- fromJSON (fileName)
     articles <- data.frame(matrix(ncol = 15, nrow = 0), stringsAsFactors=FALSE)
@@ -49,7 +47,6 @@ readGuardianJson<- function(data){
         
         # article$date_published <- as.Date (as.POSIXct (article$date_published[[1]]/1000, origin = "1970-01-01"))
         # article$date_modified <- as.Date (as.POSIXct (article$date_modified[[1]]/1000, origin = "1970-01-01"))
-        ##article$date_comments_parsed <- as.Date (as.POSIXct (article$date_comments_parsed[[1]]/1000, origin = "1970-01-01"))
         
         article$share_count <- as.numeric (article$share_count)
         article$comment_nb <- length (article$comments)
@@ -66,8 +63,19 @@ readGuardianJson<- function(data){
             else x
         })
         
-        df.selected_article<-as.data.frame(selected_article[!is.na(names(selected_article))], stringsAsFactors=FALSE)%>%
-            select(id,type,url,authors,authors_nb, section,tags, tags_nb, date_published, date_modified, share_count, comment_nb, title, description, text)
+        df.selected_article<-as.data.frame(selected_article[!is.na(names(selected_article))], stringsAsFactors=FALSE)
+        
+        for(key in c("id", "type", "url", "authors", "authors_nb", "section", "tags", "tags_nb", 
+                     "date_published", "date_modified", "share_count", "comment_nb", "title", 
+                     "description", "text")){
+            if(!(key %in% colnames(df.selected_article))){
+                df.selected_article <-df.selected_article %>% mutate(!!key := NA)
+                # colnames(df.selected_article)[ncol(df.selected_article)] <- key
+            }
+        }
+        
+        df.selected_article%>% select(id,type,url,authors,authors_nb, section,tags, tags_nb, date_published, date_modified, share_count, 
+                                      comment_nb, title, description, text)
         if(nrow(df.selected_article)==1){
             articles<-rbind.fill(articles, df.selected_article)
         }
@@ -97,7 +105,7 @@ readGuardianJson<- function(data){
 }
 
 files<-list.files("./data/guardian-data/")
-files<-files[1:1]
+    # files<-files[1:1]
 res_articles<-data.frame()
 res_comments<-data.frame()
 for(gfile in files){
@@ -106,6 +114,6 @@ for(gfile in files){
     res<-readGuardianJson(data)
     res_articles<-rbind(res_articles,res[[1]])
     res_comments<-rbind(res_comments,res[[2]])
-    write.csv2(res_articles,"articles_.csv", row.names = FALSE, append = TRUE)
-    write.csv2(res_comments,"comments_.csv", row.names = FALSE, append = TRUE)
+    write.csv2(res_articles,"./data/full_articles_guardian.csv", row.names = FALSE, append = TRUE)
+    write.csv2(res_comments,"./data/full_comments_guardian.csv", row.names = FALSE, append = TRUE)
 }

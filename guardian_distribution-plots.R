@@ -5,10 +5,10 @@ library(ggplot2)
 data <- read.csv2(paste(getwd(),"/data/guardian-articles.csv",sep=''))
 names(data)[names(data) == "X_id..oid"] <- "id"
 names(data)[names(data) == "date_published..date"] <- "date"
-data$date<-as.POSIXct(data$date)
+data$date_published<-as.POSIXct(data$date_published)
 
 grouped <- data %>% 
-  count(format(date,'%y-%V')) 
+  count(format(date_published,'%y-%V')) 
 
 colnames(grouped)<-c("art_date_published","art_count")
 p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) + geom_col() 
@@ -16,7 +16,7 @@ p + theme(axis.text.x = element_text(angle = 45)) + xlab("Year & week") + ylab("
 ggsave(paste(getwd(),"/plots/articles-per-week.pdf", sep=''))
 
 grouped <- data %>% 
-  count(format(date,'%y-%m')) 
+  count(format(date_published,'%y-%m')) 
 
 colnames(grouped)<-c("art_date_published","art_count")
 p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) + geom_col() 
@@ -25,7 +25,7 @@ ggsave(paste(getwd(),"/plots/articles-per-month.pdf", sep=''))
 
 
 grouped <- data %>% 
-  count(format(date,'%y-%m-%d')) 
+  count(format(date_published,'%y-%m-%d')) 
 colnames(grouped)<-c("art_date_published","art_count")
 
 p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) + geom_col() 
@@ -57,7 +57,7 @@ ggsave(paste(getwd(),"/plots/articles-per-section-noenv.pdf", sep=''))
 distribution_article_section <- function(data, sectionName, saveToFile=FALSE){
   section_data <- data %>% 
     filter(article_section==sectionName) %>% 
-    count(format(date,'%y-%m-%d')) 
+    count(format(date_published,'%y-%m-%d')) 
   colnames(section_data)<-c("art_date_published","art_count")
   
   p <- ggplot(section_data, aes(x = art_date_published, y = art_count)) + 
@@ -87,24 +87,24 @@ selected_articles<-data[data$article_section=="Children's books",]%>%
 
 section_data <- data %>% 
   filter(article_section=="Environment") %>% 
-  count(format(date,'%y-%m-%d')) 
+  count(format(date_published,'%y-%m-%d')) 
 colnames(section_data)<-c("art_date_published","art_count")
 env_date<-filter(section_data,art_count== max(section_data$art_count))%>%
   pull(art_date_published)
 
 selected_articles<-rbind(selected_articles, top_n(data%>%
-                           filter(format(date,"%y-%m-%d")==env_date[1])%>%
+                           filter(format(date_published,"%y-%m-%d")==env_date[1])%>%
                            filter(article_section=="Environment"),1))
 
 section_data <- data %>% 
   filter(article_section=="Opinion") %>% 
-  count(format(date,'%y-%m-%d')) 
+  count(format(date_published,'%y-%m-%d')) 
 colnames(section_data)<-c("art_date_published","art_count")
 opin_date<-filter(section_data,art_count== max(section_data$art_count))%>%
   pull(art_date_published)
 
 selected_articles<-rbind(selected_articles, top_n(data%>%
-                                                    filter(format(date,"%y-%m-%d")==opin_date[1])%>%
+                                                    filter(format(date_published,"%y-%m-%d")==opin_date[1])%>%
                                                     filter(article_section=="Opinion"),1))
 
 

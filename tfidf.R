@@ -38,7 +38,7 @@ run_tfidf <- function(data, documentColumn, roots = FALSE) {
   return(tfidf_data)
 }
 
-run_topn <- function(tfidf_data, documentColumn, number_of_top){
+run_topn <- function(tfidf_data, documentColumn, number_of_top){ ##can return more than n rows if there are ties in scores
  
     topn_data <- tfidf_data %>% 
       group_by(!!sym(documentColumn)) %>% 
