@@ -2,6 +2,7 @@ library(lubridate)
 source(paste(getwd(),"/tfidf.R", sep=''))
 
 csv_data <- read.csv2(paste(getwd(),"/data/full_articles_guardian.csv",sep=''), stringsAsFactors = FALSE)
+csv_data<-csv_data[!is.na(csv_data$text),]
 selected_articles<-read.csv2("./results/guardian_articles_selected.csv", stringsAsFactors = FALSE)
 csv_data$date_published<-as.numeric(csv_data$date_published)
 csv_data$date_published<- as.Date(as.POSIXct((csv_data$date_published/1000), origin = "1970-01-01"))
@@ -19,18 +20,22 @@ top_tfidf_data <-top_tfidf_data %>%
 top_tfidf_data %>% write.csv2(paste(getwd(),"/results/SingleArticle-Top",top_num,"-noaggreg.csv", sep=""), row.names = FALSE)
 
 ###
-# selected_articles_info<-
-#   top_tfidf_data%>%
-#   filter(as.character(id) %in% as.character(selected_articles$id))
-# 
-#  selected_articles$singleArtNoAgg<-NA
-# 
-#  aid<-list()
-#   for(aid in unique(selected_articles$id)){
-#     words<-selected_articles_info%>%group_by(id)%>%filter(id==aid)%>%select(word)
-#     asd<-list(words$word)
-#     selected_articles<-selected_articles %>% mutate(singleArtNoAgg = replace(singleArtNoAgg, id==aid,values=asd))
-#   }
+selected_articles_info<-
+  top_tfidf_data%>%
+  filter(as.character(id) %in% as.character(selected_articles$id))
+
+ selected_articles$singleArtNoAgg<-NA
+
+ aid <- list()
+  for(aid in unique(selected_articles$id)){
+    words <- selected_articles_info%>%
+      group_by(id)%>%
+      filter(id==aid)%>%
+      select(word)
+    article_words<-list(words$word)
+    selected_articles<-selected_articles %>% 
+      mutate(singleArtNoAgg = replace(singleArtNoAgg, id==aid, values=article_words))
+  }
 
 ##### Document = Single Article, tf-idf results aggregated by month - top 15 words with highest tfidf score from all articles/month  
 tfidf_aggregated <-tfidf_data %>% 
@@ -43,19 +48,18 @@ top_tfidf_aggregated<-tfidf_aggregated %>%
 
 top_tfidf_aggregated %>% write.csv2(paste(getwd(),"/results/SingleArticle-Top",top_num,"-aggreg-month.csv", sep=""), row.names = FALSE)
 
-# selected_articles_info<-NULL
-# selected_articles_info<-
-#   top_tfidf_aggregated%>%
-#   filter(as.character(id) %in% as.character(selected_articles$id))
+selected_articles_info<-
+  top_tfidf_aggregated%>%
+  filter(as.character(id) %in% as.character(selected_articles$id))
 
-# selected_articles$singleArtAggMonth<-NA
-# 
-# aid<-list()
-# for(aid in unique(selected_articles$id)){
-#   words<-selected_articles_info%>%group_by(id)%>%filter(id==aid)%>%select(word)
-#   asd<-list(words$word)
-#   selected_articles<-selected_articles %>% mutate(singleArtAggMonth = replace(singleArtAggMonth, id==aid,values=asd))
-# }
+selected_articles$singleArtAggMonth<-NA
+
+aid<-list()
+for(aid in unique(selected_articles$id)){
+  words<-selected_articles_info%>%group_by(id)%>%filter(id==aid)%>%select(word)
+  asd<-list(words$word)
+  selected_articles<-selected_articles %>% mutate(singleArtAggMonth = replace(singleArtAggMonth, id==aid,values=asd))
+}
 
 
 ##### Document = Single Article, STEMMED tf-idf results aggregated by month - top 15 words with highest tfidf score from all articles/month  
@@ -73,31 +77,42 @@ top_tfidf_aggregated_roots<-tfidf_aggregated_roots %>%
 
 top_tfidf_aggregated_roots %>% write.csv2(paste(getwd(),"/results/SingleArticle-Roots-Top",top_num,"-aggreg-month.csv", sep=""), row.names = FALSE)
 
-##### Document =Articles from Month,  tf-idf results
+##### Document=Articles from Month,  tf-idf results
 data<-csv_data
 
+
 data<-data %>% 
-  group_by(month=floor_date(date_published, "month")) %>%   
-  arrange(month)
+  mutate(amonth=floor_date(date_published, "month")) %>%   
+  arrange(amonth)
 
-tfidf_data_month <- run_tfidf(data,"month", roots = FALSE)
+tfidf_data_month <- run_tfidf(data,"amonth", roots = FALSE)
 
-top_monthly<-run_topn(tfidf_data_month, "month", top_num)
+top_monthly<-run_topn(tfidf_data_month, "amonth", top_num)
 
 top_monthly %>% write.csv2(paste(getwd(),"/results/MonthArticles-Top",top_num,"-noaggreg.csv", sep=""), row.names = FALSE)
 
 
+selected_articles_info<-
+  top_monthly%>%
+  filter(amonth %in% floor_date(as.Date.character(selected_articles$date_published), unit='month'))
 
-# selected_articles_info<-NULL
-# selected_articles_info<-
-#   top_monthly%>%
-#   filter(format(date_published, "%Y-%m") %in% as.character(selected_articles$id))
-# 
-# selected_articles$singleArtAggMonth<-NA
-# 
-# aid<-list()
-# for(aid in unique(selected_articles$id)){
-#   words<-selected_articles_info%>%group_by(id)%>%filter(id==aid)%>%select(word)
-#   asd<-list(words$word)
-#   selected_articles<-selected_articles %>% mutate(singleArtAggMonth = replace(singleArtAggMonth, id==aid,values=asd))
-# }
+selected_articles$MonthArticles<-NA
+
+mon<-list()
+for(mon in unique(floor_date(as.Date.character(selected_articles$date_published), unit='month'))){
+  words<-selected_articles_info%>%
+    group_by(amonth)%>%
+    filter(amonth==mon)%>%
+    select(word)
+  asd<-list(words$word)
+  print(asd)
+   selected_articles<-selected_articles %>% 
+   mutate(MonthArticles = replace(MonthArticles, floor_date(as.Date.character(selected_articles$date_published), unit='month') == mon,
+                                    values=asd))
+   # replace(MonthArticles,values=asd) #floor_date(as.Date.character(selected_articles$date_published), unit='month') == mon,
+}
+
+df.selected_articles<-as.data.frame(selected_articles)
+df.selected_articles$MonthArticles<-paste(asd$MonthArticles, collapse=",", sep="")
+
+write.csv2(df.selected_articles, "./results/guardian_articles_selected_tfidf.csv", row.names = FALSE)
