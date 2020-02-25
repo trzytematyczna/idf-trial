@@ -1,9 +1,10 @@
 library(lubridate)
 source(paste(getwd(),"/tfidf.R", sep=''))
 
-csv_data <- read.csv2(paste(getwd(),"/data/full_articles_guardian.csv",sep=''))
-selected_articles<-read.csv2("./results/guardian_articles_selected.csv")
-csv_data$date_published<-as.POSIXct(csv_data$date_published)
+csv_data <- read.csv2(paste(getwd(),"/data/full_articles_guardian.csv",sep=''), stringsAsFactors = FALSE)
+selected_articles<-read.csv2("./results/guardian_articles_selected.csv", stringsAsFactors = FALSE)
+csv_data$date_published<-as.numeric(csv_data$date_published)
+csv_data$date_published<- as.Date(as.POSIXct((csv_data$date_published/1000), origin = "1970-01-01"))
 
 data<-csv_data
 tfidf_data <- run_tfidf(data,"id", roots = FALSE)
