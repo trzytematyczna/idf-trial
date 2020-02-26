@@ -1,11 +1,10 @@
 library(tm)
 library(quateda)
 
-csv_data <- read.csv2(paste(getwd(),"/data/guardian-articles.csv",sep=''))
+csv_data <- read.csv2("./data/full_articles_guardian.csv", stringsAsFactors = FALSE)
 data<-csv_data
 data$text<-as.character(data$text)
 # asd <- data %>% unnest_tokens(word, text, to_lower = TRUE)
-  
   
   # sentences <- sub("http://([[:alnum:]|[:punct:]])+", '', dataframe$content) 
   
@@ -16,7 +15,7 @@ data$text<-as.character(data$text)
   corpus.cleaned <- tm::tm_map(corpus, function(x) iconv(x, "ASCII", "UTF-8", sub=""))  
   corpus.cleaned <- tm::tm_map(corpus.cleaned, tm::removeWords, tm::stopwords('english')) # Removing stop-words
   corpus.cleaned <- tm::tm_map(corpus.cleaned, tm::removePunctuation) # Removing stop-words
-  corpus.cleaned <- tm::tm_map(corpus, tm::stemDocument, language = "english") # Stemming the words  
+  # corpus.cleaned <- tm::tm_map(corpus, tm::stemDocument, language = "english") # Stemming the words  
   corpus.cleaned <- tm::tm_map(corpus.cleaned, tm::stripWhitespace) # Trimming excessive whitespaces 
   
   tdm <- tm::DocumentTermMatrix(corpus.cleaned) 
@@ -74,17 +73,19 @@ data$text<-as.character(data$text)
   
   library(quanteda)
   library(topicmodels)
+  library(ggplot2)
+  library(reshape2)
   
-  
-  csv_data <- read.csv2(paste(getwd(),"/data/guardian-articles.csv",sep=''))
+  csv_data <- read.csv2("./data/full_articles_guardian.csv", stringsAsFactors = FALSE)
+  csv_data<-csv_data[!is.na(csv_data$text),]
   data<-csv_data
   data$text<-as.character(data$text)
   
-  names(data)[names(data) == "X_id..oid"] <- "docid"
-  names(data)[names(data) == "text"] <- "text"
+  # names(data)[names(data) == "X_id..oid"] <- "docid"
+  # names(data)[names(data) == "text"] <- "text"
   
   dfmat_data <- corpus(data)
-  data_docid <-data$docid 
+  data_docid <-data$id 
   docnames(dfmat_data) <- data_docid
   # summary(corp_data, 1)
   dfmat_data <- dfm(dfmat_data, remove_punct = TRUE, remove = stopwords('en')) %>% 
@@ -100,12 +101,17 @@ data$text<-as.character(data$text)
   topicNames <- apply(terms(lda, 2), 2, paste, collapse = " ")
   # terms(lda, 15)
   docvars(dfmat_data, 'topic') <- topics(lda)
-  # head(topics(lda), 10)
+   # head(topics(lda), 10)
   tmResult <- posterior(lda)
   theta <- tmResult$topics 
   examples_articles<- theta[selected_articles$id,]
   colnames(examples_articles) <- topicNames
   # attributes(tmResult)
+  lda.res<-as.data.frame(topics(lda))
+  sink("lda.res.txt")
+  print(lda.res)
+  sink()
+  
   N<-length(examples_articles)
   vizDataFrame <- melt(cbind(data.frame(examples_articles), document = factor(1:N)), variable.name = "topic", id.vars = "document")  
   

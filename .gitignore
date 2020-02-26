@@ -2,7 +2,7 @@
 .Rhistory
 .Rapp.history
 
-./data/full_comments_guardian.csv
+./data/*
 # Session Data files
 .RData
 

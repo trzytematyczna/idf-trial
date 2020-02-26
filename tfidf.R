@@ -47,4 +47,19 @@ run_topn <- function(tfidf_data, documentColumn, number_of_top){ ##can return mo
     return(topn_data)
 }
 
-
+run_tfidf.decs <- function(data, documentColumn) {
+  
+  data$description<-as.character(data$description)
+  
+    wordsFreq <- data %>% 
+      unnest_tokens(word, description, to_lower = TRUE) %>%
+      filter(!str_detect(word, "^[0-9]*$")) %>%
+      anti_join(stop_words) %>% #removing stop words
+      count(!!sym(documentColumn), word, sort = TRUE)
+  
+  tfidf_data <- wordsFreq %>%
+    bind_tf_idf(word, !!sym(documentColumn), n) %>%
+    arrange(desc(!!sym(documentColumn), tf_idf))  
+  
+  return(tfidf_data)
+}
