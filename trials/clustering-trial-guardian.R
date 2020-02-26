@@ -91,13 +91,13 @@ data$text<-as.character(data$text)
   dfmat_data <- dfm(dfmat_data, remove_punct = TRUE, remove = stopwords('en')) %>% 
     # dfm_remove(c('*-time', '*-timeUpdated', 'GMT', 'BST')) %>% 
   dfm_trim(min_termfreq = 0.99, termfreq_type = "quantile", 
-             max_docfreq = 0.3, docfreq_type = "prop")
+             max_docfreq = 0.3, docfreq_type = "prop") # max number of different documents that word has to appear in.
   
   dfmat_data <- dfmat_data[ntoken(dfmat_data) > 0,]
   
   ###LDA
   dtm <- convert(dfmat_data, to = "topicmodels")
-  lda <- LDA(dtm, k = 10)
+  lda <- LDA(dtm, k = 5)
   topicNames <- apply(terms(lda, 2), 2, paste, collapse = " ")
   # terms(lda, 15)
   docvars(dfmat_data, 'topic') <- topics(lda)

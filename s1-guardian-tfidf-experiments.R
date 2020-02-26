@@ -2,6 +2,8 @@ library(lubridate)
 source(paste(getwd(),"/tfidf.R", sep=''))
 library(ggplot2)
 library(ggwordcloud)
+library(dplyr)
+library(data.table)
 
 csv_data <- read.csv2(paste(getwd(),"/data/full_articles_guardian.csv",sep=''), stringsAsFactors = FALSE)
 csv_data<-csv_data[!is.na(csv_data$text),]
@@ -37,12 +39,7 @@ selected.SingleArticleNoAggreg.desc<-top_tfidf_data.desc[which(top_tfidf_data.de
 ####
 selected.SingleArticleNoAggreg<-top_tfidf_data[which(top_tfidf_data$id %in% selected_articles$id),]
 
-##Greta words
-text.greta<-data[data$text %like% "Greta", ] #98
-# data.greta<-rbind(data.greta, data[data$text %like% "Thunberg", ]) # 191 unique 98
 
-descritpion.greta<-data[data$description %like% "Greta", ] #14
-descritpion.greta<-rbind(descritpion.greta, data[data$description %like% "Thunberg", ]) # 27 total  unique 14s
 
 ###
 selected_articles_info<-
@@ -170,3 +167,39 @@ ggplot(
   facet_wrap(~id)
 
 ggsave("selected-articles_SingleArticle-desc-NoAggreg_wordcloud.png", plot = last_plot())
+
+
+#############greta
+
+##Greta words
+text.greta<-data[data$text %like% "Greta Thunberg", ] #98
+# data.greta<-rbind(data.greta, data[data$text %like% "Thunberg", ]) # 191 unique 98
+
+descritpion.greta<-data[data$description %like% "Greta Thunberg", ] #14
+# descritpion.greta<-rbind(descritpion.greta, data[data$description %like% "Thunberg", ]) # 27 total  unique 14s
+
+grouped <- text.greta %>% 
+  count(format(date_published,'%y-%m-%d')) 
+
+colnames(grouped)<-c("art_date_published","art_count")
+p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) + 
+  geom_col() + 
+  theme(axis.text.x = element_text(angle = 45)) + 
+  xlab("Date") + 
+  ylab("# of articles") +
+  ggtitle(paste("#Greta Articles per date"))
+p
+ggsave(paste(getwd(),"/plots/greta-per-date.pdf", sep=''))
+
+grouped <- text.greta %>% count(section) 
+
+colnames(grouped)<-c("art_section","art_count")
+
+p <- ggplot(grouped, aes(x = art_section, y = art_count)) + 
+  geom_col()+ 
+  theme(axis.text.x = element_text(angle = 90)) + 
+  xlab("Section") +
+  ylab("# of greta articles") +
+  ggtitle(paste("#Greta Articles per section"))
+p
+ggsave(paste(getwd(),"/plots/greta-per-serction.pdf", sep=''))
