@@ -131,3 +131,36 @@ selected_articles<-rbind(selected_articles, top_n(data%>%
 ## 17 articles without text length(data%>%filter(text==""))
 
 write.csv2(selected_articles,"./results/guardian_articles_selected.csv", row.names = FALSE)
+
+
+
+
+####comments dataset
+data<- read.csv2("full_comments_guardian.csv", stringsAsFactors = F)
+
+grouped<-data%>%count(date)
+colnames(grouped)<-c("date","number")
+
+p <- ggplot(grouped, aes(x = date, y = number)) + 
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  xlab("Date") +
+  ylab("# of comments") +
+  ggtitle(paste("#Comments per date"))
+p
+ggsave(paste(getwd(),"/plots/comments_per_date.pdf", sep=''))
+
+data$date<-as.Date.character(data$date)
+grouped <- data %>% 
+  count(format(date,'%y-%m')) 
+colnames(grouped)<-c("date","number")
+p <- ggplot(grouped, aes(x = date, y = number)) + 
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  xlab("Date") +
+  ylab("# of comments") +
+  ggtitle(paste("#Comments per months"))
+p
+ggsave(paste(getwd(),"/plots/comments_per_months.pdf", sep=''))
+
+
