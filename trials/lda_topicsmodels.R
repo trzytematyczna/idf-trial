@@ -1,6 +1,7 @@
 library(dplyr)
 library(textmineR)
 library(tidytext)
+library(tidyr)
 library(topicmodels)
 library(ggplot2)
 
@@ -9,20 +10,20 @@ csv_data<-csv_data[!is.na(csv_data$text),]
 data<-csv_data
 data$text<-as.character(data$text)
 
-data$text <- sub("RT.*:", "", data$text)
-data$text <- sub("@.* ", "", data$text)
-text_cleaning_tokens <- data %>% 
-  tidytext::unnest_tokens(word, text)
+# data$text <- sub("RT.*:", "", data$text)
+# data$text <- sub("@.* ", "", data$text)
+text_cleaning_tokens <- data %>% unnest_tokens(word, text, to_lower = TRUE)
 text_cleaning_tokens$word <- gsub('[[:digit:]]+', '', text_cleaning_tokens$word)
 text_cleaning_tokens$word <- gsub('[[:punct:]]+', '', text_cleaning_tokens$word)
 text_cleaning_tokens <- text_cleaning_tokens %>% filter(!(nchar(word) == 1))%>% 
   anti_join(stop_words)
 tokens <- text_cleaning_tokens %>% filter(!(word==""))
-tokens <- tokens %>% mutate(ind = row_number())
+
+tokens <- tokens %>% mutate(ind = row_number())###
 tokens <- tokens %>% group_by(id) %>% mutate(ind = row_number()) %>%
   tidyr::spread(key = ind, value = word)
 tokens [is.na(tokens)] <- ""
-tokens <- tidyr::unite(tokens, text,-id,sep =" " )
+tokens <- tidyr::unite(tokens, text,-id,sep =" " ) ####todo
 tokens$text <- trimws(tokens$text)
 
 #create DTM
