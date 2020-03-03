@@ -17,7 +17,7 @@ p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) +
   ylab("# of articles") +
   ggtitle(paste("#Articles per week"))
 p
-ggsave(paste(getwd(),"/plots/articles-per-week.pdf", sep=''))v
+ggsave(paste(getwd(),"/plots/articles-per-week.pdf", sep=''))
 
 grouped <- data %>% 
   count(format(date_published,'%y-%m')) 

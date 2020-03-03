@@ -27,9 +27,8 @@ data.dfm <- dfm(doc.tokens, ngrams=1:2)
 # head(kwic(doc.tokens, "love", window = 3))
 
 
-
 data.trimmed <- data.dfm %>% dfm_trim(min_termfreq = 0.9, termfreq_type = "quantile", 
-       min_docfreq = 0.01, max_docfreq = 0.5, docfreq_type = "prop")
+                                      min_docfreq = 0.01, max_docfreq = 0.5, docfreq_type = "prop")
 
 data.trimmed <- data.trimmed[ntoken(data.trimmed) > 0,]
 
@@ -55,62 +54,34 @@ lda <- LDA(data.topicmodels, k = 10)
 # 1, 2, ... are the features with the highest and second highest document frequencies, and 
 # so on; "quantile" sets the cutoffs according to the quantiles (see quantile) of document 
 # frequencies.
-library(tm)
 
 
-corpus = tm::Corpus(tm::VectorSource(data$text)) 
-
-# Cleaning up 
-# Handling UTF-8 encoding problem from the dataset 
-corpus.cleaned <- tm::tm_map(corpus, function(x) iconv(x, "ASCII", "UTF-8", sub=""))  
-corpus.cleaned <- tm::tm_map(corpus.cleaned, tm::removeWords, tm::stopwords('english')) # Removing stop-words
-corpus.cleaned <- tm::tm_map(corpus.cleaned, tm::removePunctuation) # Removing stop-words
-# corpus.cleaned <- tm::tm_map(corpus, tm::stemDocument, language = "english") # Stemming the words  
-corpus.cleaned <- tm::tm_map(corpus.cleaned, tm::stripWhitespace) # Trimming excessive whitespaces 
-
-tdm <- tm::DocumentTermMatrix(corpus.cleaned) 
 
 
-empty.rows <- tdm[rowTotals == 0, ]$dimnames[1][[1]] 
-corpus_new <- corpus[-as.numeric(empty.rows)]
 
-
-ap_lda <- LDA(tdm, k = 10)# control = list(seed = 1234))
-
-
-library(tm)
-library(topicmodels)
-library(Matrix)
-
-# grab a character vector of text. Your source may be different
-text <- textmineR::nih_sample$ABSTRACT_TEXT
-
-text_corpus <- SimpleCorpus(VectorSource(data$text))
-
-text_dtm <- DocumentTermMatrix(text_corpus,
-                               control = list(tolower=TRUE,
-                                              removePunctuation = TRUE,
-                                              removeNumbers= TRUE,
-                                              stopwords = TRUE,
-                                              sparse=TRUE))
-
-# text_dtm2 <- cast_sparse(text_dtm)
-
-text_dtm<-tdm
-text_dtm2 <- Matrix::sparseMatrix(i=text_dtm$i,
-                                  j=text_dtm$j,
-                                  x=text_dtm$v,
-                                  dims=c(text_dtm$nrow, text_dtm$ncol),
-                                  dimnames = text_dtm$dimnames)
-
-doc_lengths <- Matrix::rowSums(text_dtm2)
-
-text_dtm3 <- text_dtm2[doc_lengths > 0, ]
-
-text_lda <- LDA(text_dtm3,  k = 10, method = "VEM", control = NULL)
-
-
-library(tidytext)
-
-ap_topics <- tidy(text_lda, matrix = "beta")
-ap_topics
+vocabulary<- data.trimmed$
+k_list <- seq(1, 20, by = 1)
+model_dir <- paste0("models_", digest::digest(vocabulary, algo = "sha1"))
+if (!dir.exists(model_dir)) dir.create(model_dir)model_list <- TmParallelApply(X = k_list, FUN = function(k){
+  filename = file.path(model_dir, paste0(k, "_topics.rda"))
+  
+  if (!file.exists(filename)) {
+    m <- FitLdaModel(dtm = dtm, k = k, iterations = 500)
+    m$k <- k
+    m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
+    save(m, file = filename)
+  } else {
+    load(filename)
+  }
+  
+  m
+}, export=c("dtm", "model_dir")) # export only needed for Windows machines#model tuning
+#choosing the best model
+coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
+                            coherence = sapply(model_list, function(x) mean(x$coherence)), 
+                            stringsAsFactors = FALSE)
+ggplot(coherence_mat, aes(x = k, y = coherence)) +
+  geom_point() +
+  geom_line(group = 1)+
+  ggtitle("Best Topic by Coherence Score") + theme_minimal() +
+  scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
