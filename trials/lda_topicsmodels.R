@@ -10,26 +10,40 @@ csv_data<-csv_data[!is.na(csv_data$text),]
 data<-csv_data
 data$text<-as.character(data$text)
 
+
 # data$text <- sub("RT.*:", "", data$text)
 # data$text <- sub("@.* ", "", data$text)
-text_cleaning_tokens <- data %>% unnest_tokens(word, text, to_lower = TRUE)
+# text_cleaning_tokens <- data %>% unnest_tokens(word, text, to_lower = TRUE)
 # text_cleaning_tokens$word <- gsub('[[:digit:]]+', '', text_cleaning_tokens$word)
 # text_cleaning_tokens$word <- gsub('[[:punct:]]+', '', text_cleaning_tokens$word)
 # text_cleaning_tokens <- text_cleaning_tokens %>% filter(!(nchar(word) == 1))%>% 
 #   anti_join(stop_words)
-tokens <- text_cleaning_tokens %>% filter(!(word==""))
-
-tokens <- tokens %>% mutate(ind = row_number())###
-tokens <- tokens %>% group_by(id) %>% mutate(ind = row_number()) %>%
-  tidyr::spread(key = ind, value = word)
-tokens [is.na(tokens)] <- ""
-
-tokens<-tokens%>% select(id,word,ind)
+# tokens <- text_cleaning_tokens %>% filter(!(word==""))
+# 
+# tokens <- tokens %>% mutate(ind = row_number())###
+# tokens <- tokens %>% group_by(id) %>% mutate(ind = row_number()) %>%
+#   tidyr::spread(key = ind, value = word)
+# tokens [is.na(tokens)] <- ""
+# 
+# tokens<-tokens%>% select(id,word,ind)
 # tokens <-unite(tokens, text, )
-tokens <- tidyr::unite(tokens, text,-id,sep =" " )
-tokens$text <- trimws(tokens$text)
+# tokens <- tidyr::unite(tokens, text,-id,sep =" " )
+# tokens$text <- trimws(tokens$text)
 
-custom.stopwords <- c("said", "saying")
+
+
+# library(tm)
+# 
+# custom.stopwords <- c("said", "saying")
+# 
+# review_corpus = Corpus(VectorSource(data$text))
+# review_corpus = tm_map(review_corpus, content_transformer(tolower))
+# review_corpus = tm_map(review_corpus, removeNumbers)
+# review_corpus = tm_map(review_corpus, removePunctuation)
+# review_corpus = tm_map(review_corpus, removeWords, c(custom.stopwords, stopwords("english")))
+# review_corpus =  tm_map(review_corpus, stripWhitespace)
+# 
+# review_dtm <- DocumentTermMatrix(review_corpus)
 
 dtm <- CreateDtm(tokens$text, 
                  doc_names = tokens$id, 
