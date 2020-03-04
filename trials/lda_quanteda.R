@@ -32,6 +32,13 @@ data.trimmed <- data.dfm %>% dfm_trim(min_termfreq = 0.9, termfreq_type = "quant
 
 data.trimmed <- data.trimmed[ntoken(data.trimmed) > 0,]
 
+# ap_td %>%
+  # cast_dtm(document, term, count)
+
+# dfmSparse <- dfm(inaugTexts, verbose=FALSE)
+# str(as.matrix(data.trimmed))
+# class(as.matrix(data.trimmed))
+
 data.topicmodels <- convert(data.trimmed, to = "topicmodels")
 lda <- LDA(data.topicmodels, k = 10)
 
