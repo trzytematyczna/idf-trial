@@ -11,39 +11,23 @@ data<-csv_data
 data$text<-as.character(data$text)
 
 
-# data$text <- sub("RT.*:", "", data$text)
-# data$text <- sub("@.* ", "", data$text)
-# text_cleaning_tokens <- data %>% unnest_tokens(word, text, to_lower = TRUE)
-# text_cleaning_tokens$word <- gsub('[[:digit:]]+', '', text_cleaning_tokens$word)
-# text_cleaning_tokens$word <- gsub('[[:punct:]]+', '', text_cleaning_tokens$word)
-# text_cleaning_tokens <- text_cleaning_tokens %>% filter(!(nchar(word) == 1))%>% 
-#   anti_join(stop_words)
-# tokens <- text_cleaning_tokens %>% filter(!(word==""))
+text_cleaning_tokens <- data %>% unnest_tokens(word, text, to_lower = TRUE)
+text_cleaning_tokens$word <- gsub('[[:digit:]]+', '', text_cleaning_tokens$word)
+text_cleaning_tokens$word <- gsub('[[:punct:]]+', '', text_cleaning_tokens$word)
+text_cleaning_tokens <- text_cleaning_tokens %>% filter(!(nchar(word) == 1))%>%
+  anti_join(stop_words)
+tokens <- text_cleaning_tokens %>% filter(!(word==""))
 # 
-# tokens <- tokens %>% mutate(ind = row_number())###
-# tokens <- tokens %>% group_by(id) %>% mutate(ind = row_number()) %>%
-#   tidyr::spread(key = ind, value = word)
-# tokens [is.na(tokens)] <- ""
-# 
-# tokens<-tokens%>% select(id,word,ind)
-# tokens <-unite(tokens, text, )
-# tokens <- tidyr::unite(tokens, text,-id,sep =" " )
-# tokens$text <- trimws(tokens$text)
+tokens <- tokens %>% mutate(ind = row_number()) %>% group_by(id) %>% mutate(ind = row_number()) %>%
+  tidyr::spread(key = ind, value = word)
+tokens [is.na(tokens)] <- ""
 
+tokens<-tokens%>% select(-type, -url, -authors, -authors_nb, -section, -tags, -tags_nb, -date_published, 
+                         -date_modified, -share_count, -comment_nb, -title, -description)
+tokens <-unite(tokens, text, -id, sep=" ")
+tokens$text <- trimws(tokens$text)
 
-
-# library(tm)
-# 
-# custom.stopwords <- c("said", "saying")
-# 
-# review_corpus = Corpus(VectorSource(data$text))
-# review_corpus = tm_map(review_corpus, content_transformer(tolower))
-# review_corpus = tm_map(review_corpus, removeNumbers)
-# review_corpus = tm_map(review_corpus, removePunctuation)
-# review_corpus = tm_map(review_corpus, removeWords, c(custom.stopwords, stopwords("english")))
-# review_corpus =  tm_map(review_corpus, stripWhitespace)
-# 
-# review_dtm <- DocumentTermMatrix(review_corpus)
+custom.stopwords <- c("said", "saying")
 
 dtm <- CreateDtm(tokens$text, 
                  doc_names = tokens$id, 
@@ -55,20 +39,13 @@ dtm <- CreateDtm(tokens$text,
 # image(dtm[1:500,1:500])
 
 tf <- TermDocFreq(dtm = dtm) 
-original_tf <- tf %>% select(term, term_freq,doc_freq)
-rownames(original_tf) <- 1:nrow(original_tf)
-
-# data.trimmed <- data.dfm %>% dfm_trim(min_termfreq = 0.9, termfreq_type = "quantile", 
-#                                       min_docfreq = 0.01, max_docfreq = 0.5, docfreq_type = "prop")
-# as(as.matrix(data.trimmed), "dgCMatrix")
-# dfmSparse <- dfm(inaugTexts, verbose=FALSE)
-# str(as.matrix(data.trimmed))
-# class(as.matrix(data.trimmed))
+ # original_tf <- tf %>% select(term, term_freq,doc_freq)
+ # rownames(original_tf) <- 1:nrow(original_tf)
 
 
-# Eliminate words appearing less than 2 times or in more than half of the documents
+# Eliminate words appearing less than 2 times or in more than half of the documents max_doc_fq = 0.5 
 vocabulary <- tf$term[ tf$term_freq > 1 & tf$doc_freq < nrow(dtm) / 2 ]
-# dtm = dtm
+ dtm = dtm
 
 k_list <- seq(1, 20, by = 1)
 model_dir <- paste0("models_", digest::digest(vocabulary, algo = "sha1"))
@@ -90,8 +67,6 @@ model_list <- TmParallelApply(X = k_list, FUN = function(k){
   m
 }, export=c("dtm", "model_dir")) # export only needed for Windows machines
 
-#model tuning
-#choosing the best model
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
                             coherence = sapply(model_list, function(x) mean(x$coherence)), 
                             stringsAsFactors = FALSE)
@@ -102,3 +77,8 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
 
 ggsave("./coherence.pdf",plot = g)
+
+
+model <- model_list[which.max(coherence_mat$coherence)][[ 1 ]]
+model$top_terms <- GetTopTerms(phi = model$phi, M = 20)
+top20_wide <- as.data.frame(model$top_terms)
