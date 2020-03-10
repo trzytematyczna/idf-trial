@@ -174,7 +174,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   geom_point() +
   geom_line(group = 1)+
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
-  scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
+  scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
 ggsave("./coherence_al07_ngram1.pdf",plot = g)
 
