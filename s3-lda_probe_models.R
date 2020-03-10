@@ -37,7 +37,6 @@ data.trimmed <- data.trimmed[ntoken(data.trimmed) > 0,]
 # as(as.matrix(data.trimmed), "dgCMatrix")
 # dfmSparse <- dfm(inaugTexts, verbose=FALSE)
 # str(as.matrix(data.trimmed))
-# class(as.matrix(data.trimmed))
 
 # tf <- TermDocFreq(dtm = dtm) 
 # original_tf <- tf %>% select(term, term_freq,doc_freq)
