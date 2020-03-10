@@ -6,7 +6,7 @@ library(reshape2)
 
 ###### <parameters>
 ngram<-2 #1:ngram
-k_list <- seq(1, 10, by = 1) #nb of clusters to check
+k_list <- seq(1, 30, by = 1) #nb of clusters to check
 # k_list<-8
 model_dir <- paste0("./results/lda/models/ngram_1:",ngram) ##directory of models
 
@@ -200,7 +200,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"./coherence_al07_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al07_ngram",ngram,".pdf"),plot = g) ##alpha
 
 ##</alpha=0.7
 
