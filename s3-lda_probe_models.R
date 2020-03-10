@@ -71,7 +71,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./coherence_al005_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al005_ngram",ngram,".pdf"),plot = g) ##alpha
 
 
 ##</alpha=0.05
@@ -103,7 +103,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./coherence_al01_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al01_ngram",ngram,".pdf"),plot = g) ##alpha
 
 
 ##</alpha=0.1
@@ -137,7 +137,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./coherence_al03_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al03_ngram",ngram,".pdf"),plot = g) ##alpha
 
 ##</alpha=0.3
 
@@ -169,7 +169,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
 
-ggsave(paste0("./coherence_al05_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al05_ngram",ngram,".pdf"),plot = g) ##alpha
 
 ##</alpha=0.5
 
@@ -200,7 +200,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./coherence_al07_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"./coherence_al07_ngram",ngram,".pdf"),plot = g) ##alpha
 
 ##</alpha=0.7
 
