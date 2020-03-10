@@ -6,6 +6,15 @@ library(reshape2)
 library(dplyr)
 library(wordcloud)
 
+####selected parameters to check the results####
+
+k_list<-10 #cluster number
+alpha<-1 #alpha value
+ngram<-1 #ngrams
+
+##################
+
+
 csv_data <- read.csv2("./data/full_articles_guardian.csv", stringsAsFactors = FALSE)
 csv_data<-csv_data[!is.na(csv_data$text),]
 data<-csv_data
@@ -17,7 +26,7 @@ stopwords1 <- c("said", "saying")
 doc.tokens <- doc.tokens%>% tokens(remove_punct = TRUE, remove_numbers = TRUE, remove_separators = TRUE) %>%
   tokens_tolower() %>%
   tokens_select(c(stopwords(source='smart'),stopwords1, stopwords("french")),selection='remove')
-data.dfm <- dfm(doc.tokens, ngrams=1:1)
+data.dfm <- dfm(doc.tokens, ngrams=1:ngram)
 
 # featnames(data.dfm)
 # topfeatures(data.dfm, 5)
@@ -46,10 +55,7 @@ tf_bigrams <- original_tf[ stringr::str_detect(original_tf$term, "_") , ]
 
 # k_list <- seq(1, 25, by = 1)
 
-k_list<-10
-alpha<-1
 al<- alpha%>% formatC(width=2, flag = "0")
-ngram<-1
 name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
 
 model_dir <- paste0("./results/lda/models/ngram_1:1/alpha_",al)
@@ -123,6 +129,10 @@ dev.off()
 # set.seed(1234)
 pdf(paste("./results/lda/cluster",name,".pdf",sep=""))
 for(i in 1:length(unique(top20.summary$topic))){  
+  layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+  par(mar=rep(0, 4))
+  plot.new()
+  text(x=0.1, y=0.1, paste0("Topic ",i))
   wordcloud(words = subset(top20.summary, topic == i)$word, 
              freq = subset(top20.summary, topic == i)$value, min.freq = 1,
              max.words=200, random.order=FALSE, rot.per=0.35, 
