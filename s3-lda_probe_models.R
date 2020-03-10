@@ -6,7 +6,7 @@ library(reshape2)
 
 ###### <parameters>
 ngram<-2 #1:ngram
-k_list <- seq(1, 30, by = 1) #nb of clusters to check
+k_list <- seq(1, 10, by = 1) #nb of clusters to check
 # k_list<-8
 model_dir <- paste0("./results/lda/models/ngram_1:",ngram) ##directory of models
 
@@ -45,36 +45,36 @@ original_tf <- TermDocFreq(dtm = dtm)
 
 if (!dir.exists(model_dir)){ dir.create(model_dir)}
 
-# ##alpha=0.05
-# 
-# run.model.fun05 <- function(k){  ##alpha
-#   filename = file.path(model_dir, paste0(k, "_topics_a005.rda")) ##alpha
-#   if (!file.exists(filename)) {
-#     m <- FitLdaModel(dtm = dtm, k = k, iterations = 500, alpha = 0.05) ##alpha
-#     m$k <- k
-#     m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
-#     save(m, file = filename)
-#   } else {
-#     load(filename)
-#   }
-#   m
-# }
-# 
-# model_list <- TmParallelApply(X = k_list, FUN = run.model.fun05) ##alpha
-# 
-# coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
-#                             coherence = sapply(model_list, function(x) mean(x$coherence)), 
-#                             stringsAsFactors = FALSE)
-# g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
-#   geom_point() +
-#   geom_line(group = 1)+
-#   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
-#   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
-# 
-# ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al005_ngram",ngram,".pdf"),plot = g) ##alpha
-# 
-# 
-# ##</alpha=0.05
+##alpha=0.05
+
+run.model.fun05 <- function(k){  ##alpha
+  filename = file.path(model_dir, paste0(k, "_topics_a005.rda")) ##alpha
+  if (!file.exists(filename)) {
+    m <- FitLdaModel(dtm = dtm, k = k, iterations = 500, alpha = 0.05) ##alpha
+    m$k <- k
+    m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
+    save(m, file = filename)
+  } else {
+    load(filename)
+  }
+  m
+}
+
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun05, cpus=1) ##alpha
+
+coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
+                            coherence = sapply(model_list, function(x) mean(x$coherence)),
+                            stringsAsFactors = FALSE)
+g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
+  geom_point() +
+  geom_line(group = 1)+
+  ggtitle("Best Topic by Coherence Score") + theme_minimal() +
+  scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
+
+ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al005_ngram",ngram,".pdf"),plot = g) ##alpha
+
+
+##</alpha=0.05
 
 
 ##alpha=0.1
@@ -92,7 +92,7 @@ run.model.fun1 <- function(k){  ##alpha
   m
 }
 
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1) ##alpha
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1, cpus=1) ##alpha
 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
                             coherence = sapply(model_list, function(x) mean(x$coherence)), 
@@ -125,7 +125,7 @@ run.model.fun3 <- function(k){ ##alpha
 }
 
 
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun3) ##alpha
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun3, cpus=1) ##alpha
 
 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
@@ -157,7 +157,7 @@ run.model.fun5 <- function(k){ ##alpha
   }
   m
 }
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun5) ##alpha
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun5, cpus=1) ##alpha
 
 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
@@ -188,7 +188,7 @@ run.model.fun7 <- function(k){ ##alpha
   }
   m
 }
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun7) ##alpha
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun7, cpus=1) ##alpha
 
 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)), 
