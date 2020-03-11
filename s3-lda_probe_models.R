@@ -5,7 +5,7 @@ library(textmineR)
 library(reshape2)
 
 ###### <parameters>
-ngram<-2 #1:ngram
+ngram<-1 #1:ngram
 k_list <- seq(1, 30, by = 1) #nb of clusters to check
 # k_list<-8
 model_dir <- paste0("./results/lda/models/ngram_1:",ngram) ##directory of models
