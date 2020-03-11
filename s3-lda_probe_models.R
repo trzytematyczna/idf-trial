@@ -9,6 +9,7 @@ ngram<-1 #1:ngram
 k_list <- seq(1, 30, by = 1) #nb of clusters to check
 # k_list<-8
 model_dir <- paste0("./results/lda/models/ngram_1:",ngram) ##directory of models
+coherence_dir <- paste0("./results/lda/coherence/ngram_1:",ngram) ##directory of models
 
 ###### </parameters>
 
@@ -44,6 +45,7 @@ original_tf <- TermDocFreq(dtm = dtm)
 ####<experiments>
 
 if (!dir.exists(model_dir)){ dir.create(model_dir)}
+if (!dir.exists(coherence_dir)){ dir.create(coherence_dir)}
 
 ##alpha=0.05
 
@@ -71,7 +73,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al005_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(file.path(coherence_dir, paste0("coherence_al005_ngram",ngram,".pdf")),plot = g) ##alpha
 
 
 ##</alpha=0.05
@@ -103,7 +105,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al01_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(file.path(coherence_dir, paste0("coherence_al01_ngram",ngram,".pdf")),plot = g) ##alpha
 
 
 ##</alpha=0.1
@@ -137,7 +139,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al03_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(file.path(coherence_dir, paste0("coherence_al03_ngram",ngram,".pdf")),plot = g) ##alpha
 
 ##</alpha=0.3
 
@@ -169,7 +171,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
 
-ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al05_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(file.path(coherence_dir, paste0("coherence_al05_ngram",ngram,".pdf")),plot = g) ##alpha
 
 ##</alpha=0.5
 
@@ -200,7 +202,7 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(paste0("./results/lda/coherence/ngram_1:",ngram,"/coherence_al07_ngram",ngram,".pdf"),plot = g) ##alpha
+ggsave(file.path(coherence_dir, paste0("coherence_al07_ngram",ngram,".pdf")),plot = g) ##alpha
 
 ##</alpha=0.7
 

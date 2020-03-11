@@ -9,8 +9,9 @@ library(wordcloud)
 ####selected parameters to check the results####
 
 k_list<-10 #cluster number
-alpha<-1 #alpha value
-ngram<-1 #ngrams
+alpha<-1 # 0.alpha value
+wid<-2 #for number of leading zeros in models
+ngram<-2 #ngrams
 
 ##################
 
@@ -55,10 +56,10 @@ tf_bigrams <- original_tf[ stringr::str_detect(original_tf$term, "_") , ]
 
 # k_list <- seq(1, 25, by = 1)
 
-al<- alpha%>% formatC(width=2, flag = "0")
+al<- alpha%>% formatC(width=wid, flag = "0")
 name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
 
-model_dir <- paste0("./results/lda/models/ngram_1:1/alpha_",al)
+model_dir <- paste0("./results/lda/models/ngram_1:",ngram,"/alpha_",al)
 
 
 run.model.fun <- function(k){
@@ -150,3 +151,48 @@ selected.topic <- document_topic %>% filter(document %in% selected.articles$id) 
 selected.articles<-merge(selected.topic,selected.articles,by="id")
 
 selected.articles %>% write.csv2(paste0("./results/lda/guardian_articles_selected_lda", name,".csv"))
+
+####
+
+dt <- document_topic %>% select(document,topic) %>% plyr::rename(c("document"="id"))
+
+topic.date <- merge(dt,data, by="id") %>% select(id,topic,date_published)
+topic.date$date_published<-as.numeric(topic.date$date_published)
+topic.date$date_published<- as.Date(as.POSIXct((topic.date$date_published/1000), origin = "1970-01-01"))
+
+grouped<-topic.date %>% group_by(date_published,topic) %>% summarize(n=n()) %>%
+  mutate(f=n/sum(n)) %>% plyr::rename(c("f"="perc"))
+
+for(i in 2016:2019){
+  topics.yearly <- grouped %>% 
+    filter(date_published >= as.Date(paste0(i,"-01-01")) &
+             date_published < as.Date(paste0((i+1),"-01-01")))
+  g <- ggplot(data=topics.yearly,aes(x=date_published,fill=factor(topic),y=perc)) + 
+    geom_bar(stat="identity",position="stack") +
+    xlab("Date") + 
+    # ylab("# of articles") +
+    ggtitle(paste0("Topics distribution per date for ",i," topics no ", k_list," ngram ",
+                   ngram," alpha ", formatC(al, width=2, flag = "0")))
+  
+  ggsave(paste0("topics-yearly-",i,".pdf"))
+}
+
+grouped.m <- topic.date %>% 
+  group_by(format(date_published,'%Y-%m'),topic) %>% 
+  summarize(n=n()) %>%
+  mutate(f=n/sum(n)) %>% 
+  plyr::rename(c("f"="perc"))%>%
+  plyr::rename(c("format(date_published, \"%Y-%m\")"="month"))
+# grouped.m$month<-as.numeric(grouped.m$month)
+# grouped.m$date_published<- as.Date(as.POSIXct((topic.date$date_published/1000), origin = "1970-01-01"))
+grouped.m$month<-as.Date.character(as.character(grouped.m$month),format = "%Y-%m")
+
+for(i in 2016:2019){
+  topics.yearly.m <- grouped.m %>% 
+    filter(month >= as.Date(as.character(paste0(i,"-01")), format = "%Y-%m") &
+             month < as.Date(as.character(paste0((i+1),"-01")), format = "%Y-%m"))
+  print(as.Date(as.character(paste0(i,"-01")), format = "%Y-%m"))
+  g <- ggplot(data=topics.yearly.m,aes(x=month,fill=factor(topic),y=perc)) + 
+    geom_bar(stat="identity",position="stack")# +facet_grid(~topic)
+  ggsave(paste0("topics-yearly-monthly-grouped-",i,".pdf"))
+}
