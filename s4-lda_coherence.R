@@ -12,6 +12,10 @@ k_list<-10 #cluster number
 alpha<-1 # 0.alpha value
 wid<-2 #for number of leading zeros in models
 ngram<-2 #ngrams
+plots_dir <- paste0("./results/plots/") ##directory of plots
+model_dir <- paste0("./results/lda/models/ngram_1:",ngram,"/alpha_",al)
+al<- alpha%>% formatC(width=wid, flag = "0")
+name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
 
 ##################
 
@@ -55,11 +59,6 @@ tf_bigrams <- original_tf[ stringr::str_detect(original_tf$term, "_") , ]
 # head(tf_bigrams[ order(tf_bigrams$term_freq, decreasing = TRUE) , ], 10)
 
 # k_list <- seq(1, 25, by = 1)
-
-al<- alpha%>% formatC(width=wid, flag = "0")
-name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
-
-model_dir <- paste0("./results/lda/models/ngram_1:",ngram,"/alpha_",al)
 
 
 run.model.fun <- function(k){
@@ -174,7 +173,7 @@ for(i in 2016:2019){
     ggtitle(paste0("Topics distribution per date for ",i," topics no ", k_list," ngram ",
                    ngram," alpha ", formatC(al, width=2, flag = "0")))
   
-  ggsave(paste0("topics-yearly-",i,".pdf"))
+  ggsave(paste0(plots_dir,"topics-yearly-",i,".pdf"))
 }
 
 grouped.m <- topic.date %>% 
@@ -185,14 +184,15 @@ grouped.m <- topic.date %>%
   plyr::rename(c("format(date_published, \"%Y-%m\")"="month"))
 # grouped.m$month<-as.numeric(grouped.m$month)
 # grouped.m$date_published<- as.Date(as.POSIXct((topic.date$date_published/1000), origin = "1970-01-01"))
-grouped.m$month<-as.Date.character(as.character(grouped.m$month),format = "%Y-%m")
 
 for(i in 2016:2019){
   topics.yearly.m <- grouped.m %>% 
-    filter(month >= as.Date(as.character(paste0(i,"-01")), format = "%Y-%m") &
-             month < as.Date(as.character(paste0((i+1),"-01")), format = "%Y-%m"))
-  print(as.Date(as.character(paste0(i,"-01")), format = "%Y-%m"))
+    filter(as.Date(paste0(month,"-01")) >= as.Date(paste0(i,"-01-01")) &
+          as.Date(paste0(month,"-01")) < as.Date(paste0((i+1),"-01-01")))
   g <- ggplot(data=topics.yearly.m,aes(x=month,fill=factor(topic),y=perc)) + 
-    geom_bar(stat="identity",position="stack")# +facet_grid(~topic)
-  ggsave(paste0("topics-yearly-monthly-grouped-",i,".pdf"))
+    geom_bar(stat="identity",position="stack")+
+    theme(axis.text.x = element_text(angle = 45))+
+  ggtitle(paste0("Topics distribution per month for ",i," topics no ", k_list," ngram ",
+                 ngram," alpha ", formatC(al, width=2, flag = "0")))
+  ggsave(paste0(plots_dir,"topics-yearly-monthly-grouped-",i,".pdf"))
 }
