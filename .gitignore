@@ -2,8 +2,7 @@
 .Rhistory
 .Rapp.history
 
-data/*
-
+data/**/*
 results/lda/models/**/*
 # Session Data files
 .RData
