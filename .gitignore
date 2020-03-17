@@ -4,6 +4,8 @@
 
 data/**/*
 results/lda/models/**/*
+
+results/lda/comments/models/**/*
 # Session Data files
 .RData
 
