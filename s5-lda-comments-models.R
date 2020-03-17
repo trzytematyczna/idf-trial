@@ -10,8 +10,8 @@ library(tidyr)
 ####selected parameters to check the results####
 k_list <- seq(1, 25, by = 1)
 # k_list<-10 #cluster number
-alpha<-1 # 0.alpha value
-wid<-2 #for number of leading zeros in models
+alpha<-5 # 0.alpha value
+wid<-3 #for number of leading zeros in models
 ngram<-2 #ngrams
 al<- alpha%>% formatC(width=wid, flag = "0")
 # plots_dir <- paste0("./plots/lda/comments/") ##directory of plots
