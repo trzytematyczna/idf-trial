@@ -60,6 +60,8 @@ tf_bigrams <- original_tf[ stringr::str_detect(original_tf$term, "_") , ]
 # head(tf_bigrams[ order(tf_bigrams$term_freq, decreasing = TRUE) , ], 10)
 
 # k_list <- seq(1, 25, by = 1)
+if (!dir.exists(model_dir)){ dir.create(model_dir)}
+if (!dir.exists(coherence_dir)){ dir.create(coherence_dir)}
 
 
 run.model.fun <- function(k){
@@ -266,15 +268,15 @@ grouped.sp <- sum.probab %>%
 
 grouped.sp<- grouped.sp%>%  
   group_by(month,topic) %>%
-  summarise(sum_probability=sum(probability))
+  summarise(sum_probability=mean(probability))
 
 
 g<-ggplot(grouped.sp, aes(x=month,fill=topic,y=sum_probability))+ 
   geom_bar(stat="identity",position="stack")+
   theme(axis.text.x = element_text(angle = 90))+
-  ggtitle(paste0("Sum of probabilities of topics in articles aggregated by month"))
+  ggtitle(paste0("Avg of probabilities of topics in articles aggregated by month"))
 # facet_grid(~topic)
- ggsave(paste0(plots_dir,"sum-probabilities-per-month.pdf"), plot = g)
+ ggsave(paste0(plots_dir,"sum-probabilities-per-month_normalized.pdf"), plot = g)
 g
 
  
