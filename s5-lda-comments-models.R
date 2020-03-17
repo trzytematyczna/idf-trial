@@ -6,6 +6,8 @@ library(reshape2)
 library(dplyr)
 library(wordcloud)
 library(tidyr)
+library(data.table)
+
 
 ####selected parameters to check the results####
 k_list <- seq(1, 25, by = 1)
@@ -93,4 +95,17 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
 
 ggsave(file.path(coherence_dir, paste0("coherence_al005_ngram",ngram,".pdf")),plot = g) ##alpha
 
+###########
 
+text.greta<-data[data$text %like% "Greta Thunberg", ]
+nrow(text.greta)
+text.greta<-data[data$text %like% "Greta", ]
+nrow(text.greta)
+text.greta<-data[data$text %like% "greta", ]
+nrow(text.greta)
+
+
+text.greta<-data[data$text %like% "ipcc", ]
+nrow(text.greta)
+text.greta<-data[data$text %like% "IPCC", ]
+nrow(text.greta)
