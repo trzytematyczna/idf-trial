@@ -423,7 +423,7 @@ g<-ggplot(global.topic.probab, aes(x=topic,y=global_probability))+
    g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
      geom_bar(stat="identity",position="stack")+
      ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
-     geom_hline(yintercept = tgp)+
+     geom_hline(yintercept = tgp, lty="dashed")+
      theme(axis.text.x = element_text(angle = 90))+
      ggtitle(paste0("Probab of t_",i," divided by global probability of the topic, aggr by week"))+
      xlab("week")+
@@ -431,8 +431,8 @@ g<-ggplot(global.topic.probab, aes(x=topic,y=global_probability))+
      
    ggsave(paste0(plots_dir,"Topic-",i,"+global.pdf"))
    
-   # g<-ggplot(data=topic,aes(x=month))+
-   # geom_bar(aes(y=sum_probability),stat="identity",position ="identity",alpha=.3,fill='lightblue',color='lightblue4') +
-  # geom_bar(aes(y=global_probability),stat="identity",position ="identity",alpha=.8,fill='pink',color='red')
+   #  g<-ggplot(data=topic,aes(x=month))+
+   #  geom_bar(aes(y=sum_probability),stat="identity",position ="identity",alpha=.3,fill='lightblue',color='lightblue4') +
+   # geom_bar(aes(y=global_probability),stat="identity",position ="identity",alpha=.8,fill='pink',color='red')
  }
  
