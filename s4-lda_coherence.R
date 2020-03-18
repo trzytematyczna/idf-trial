@@ -314,3 +314,49 @@ g<-ggplot(grouped.sp, aes(x=week,fill=topic,y=sum_probability))+
 # facet_grid(~topic)
 ggsave(paste0(plots_dir,"sum-probabilities-per-week.pdf"), plot = g)
 g
+
+
+
+######
+
+
+nrow(data[data$text %like% "Greta Thunberg", ]) #92
+nrow(data[data$text %like% "Thunberg", ]) #93
+##
+nrow(data[data$text %like% "IPCC", ]) # 234
+nrow(asd<-data[data$text %like% "UN Environment Programme", ]) #13
+
+
+data.greta <- data[data$text %like% "Greta Thunberg", ] %>% 
+  rbind(data[data$text %like% "Thunberg", ])%>%
+  distinct(id, .keep_all = TRUE)
+length(unique(data.greta$id)) #93
+
+
+data.ipcc <- data[data$text %like% "IPCC", ] %>% 
+  rbind(data[data$text %like% "Intergovernmental Panel on Climate Change", ]) %>% 
+  rbind(data[data$text %like% "UN Environment Programme", ]) %>%
+        distinct(id, .keep_all = TRUE)
+length(unique(data.ipcc$id)) #334
+
+data.greta%>% filter(id %in% data.ippc$id) #0
+
+data.ipcc$date_published<-as.numeric(data.ipcc$date_published)
+data.ipcc$date_published<- as.Date(as.POSIXct((data.ipcc$date_published/1000), origin = "1970-01-01"))
+
+grouped <- data.ipcc %>% 
+  count(format(date_published,'%y-%m')) 
+
+colnames(grouped)<-c("art_date_published","art_count")
+p <- ggplot(grouped, aes(x = art_date_published, y = art_count)) + 
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  xlab("Year & month") +
+  ylab("# of articles") +
+  ggtitle(paste("#IPCC Articles per month"))
+p
+ggsave(paste(getwd(),"/plots/ipcc/ipcc-per-month.pdf", sep=''))
+
+
+#  UN Environment Programme and the World Meteorological Organisation (WMO)
+# World Climate Research Program

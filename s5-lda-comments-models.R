@@ -7,13 +7,14 @@ library(dplyr)
 library(wordcloud)
 library(tidyr)
 library(data.table)
+library(tidyverse)
 
 
 ####selected parameters to check the results####
-k_list <- seq(1, 25, by = 1)
+k_list <- seq(1, 1, by = 1)
 # k_list<-10 #cluster number
-alpha<-5 # 0.alpha value
-wid<-3 #for number of leading zeros in models
+alpha<-1 # 0.alpha value
+wid<-2 #for number of leading zeros in models
 ngram<-2 #ngrams
 al<- alpha%>% formatC(width=wid, flag = "0")
 # plots_dir <- paste0("./plots/lda/comments/") ##directory of plots
@@ -24,7 +25,7 @@ name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list,
 ##################
 
 
-csv_data <- read.csv2("./data/ignored/full_comments_guardian.csv", stringsAsFactors = FALSE)
+csv_data <- read.csv2("./data/full_comments_guardian.csv", stringsAsFactors = FALSE)
 csv_data<-csv_data[!is.na(csv_data$text),]
 data<-csv_data
 data$text<-as.character(data$text)
@@ -67,12 +68,12 @@ if (!dir.exists(model_dir)){ dir.create(model_dir)}
 if (!dir.exists(coherence_dir)){ dir.create(coherence_dir)}
 
 
-##alpha=0.05
+##alpha=0.1
 
-run.model.fun05 <- function(k){  ##alpha
-  filename = file.path(model_dir, paste0(k, "_topics_a005.rda")) ##alpha
+run.model.fun1 <- function(k){  ##alpha
+  filename = file.path(model_dir, paste0(k, "_topics_a01.rda")) ##alpha
   if (!file.exists(filename)) {
-    m <- FitLdaModel(dtm = dtm, k = k, iterations = 500, alpha = 0.05) ##alpha
+    m <- FitLdaModel(dtm = dtm, k = k, iterations = 500, alpha = 0.1) ##alpha
     m$k <- k
     m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
     save(m, file = filename)
@@ -82,7 +83,7 @@ run.model.fun05 <- function(k){  ##alpha
   m
 }
 
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun05, cpus=1) ##alpha
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1, cpus=1) ##alpha
 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
                             coherence = sapply(model_list, function(x) mean(x$coherence)),
@@ -93,19 +94,4 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(file.path(coherence_dir, paste0("coherence_al005_ngram",ngram,".pdf")),plot = g) ##alpha
-
-###########
-
-text.greta<-data[data$text %like% "Greta Thunberg", ]
-nrow(text.greta)
-text.greta<-data[data$text %like% "Greta", ]
-nrow(text.greta)
-text.greta<-data[data$text %like% "greta", ]
-nrow(text.greta)
-
-
-text.greta<-data[data$text %like% "ipcc", ]
-nrow(text.greta)
-text.greta<-data[data$text %like% "IPCC", ]
-nrow(text.greta)
+ggsave(file.path(coherence_dir, paste0("coherence_al01_ngram",ngram,".pdf")),plot = g) ##alpha
