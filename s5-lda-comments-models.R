@@ -63,7 +63,6 @@ tf_bigrams <- original_tf[ stringr::str_detect(original_tf$term, "_") , ]
 head(tf_bigrams[ order(tf_bigrams$term_freq, decreasing = TRUE) , ], 10)
 
 
-
 if (!dir.exists(model_dir)){ dir.create(model_dir)}
 if (!dir.exists(coherence_dir)){ dir.create(coherence_dir)}
 

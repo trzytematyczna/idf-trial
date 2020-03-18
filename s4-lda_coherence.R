@@ -15,7 +15,7 @@ wid<-2 #for number of leading zeros in models
 ngram<-2 #ngrams
 al<- alpha%>% formatC(width=wid, flag = "0")
 plots_dir <- paste0("./plots/lda/") ##directory of plots
-model_dir <- paste0("./results/lda/models/ngram_1:",ngram,"/alpha_",al)
+model_dir <- paste0("./results/lda/articles/models/ngram_1:",ngram,"/alpha_",al)
 name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
 
 ##################
@@ -61,7 +61,7 @@ tf_bigrams <- original_tf[ stringr::str_detect(original_tf$term, "_") , ]
 
 # k_list <- seq(1, 25, by = 1)
 if (!dir.exists(model_dir)){ dir.create(model_dir)}
-if (!dir.exists(coherence_dir)){ dir.create(coherence_dir)}
+if (!dir.exists(plots_dir)){ dir.create(plots_dir)}
 
 
 run.model.fun <- function(k){
@@ -77,7 +77,7 @@ run.model.fun <- function(k){
 model_list <- TmParallelApply(X = k_list, FUN = run.model.fun)
 
 
-# rows of phi = topics; columns = tokens. 
+# rows of phi = topics; columns = tokens (words). 
 # rows of theta = documents; columns = topics.
 
 # model <- model_list[which.max(coherence_mat$coherence)][[ 1 ]]
@@ -360,3 +360,79 @@ ggsave(paste(getwd(),"/plots/ipcc/ipcc-per-month.pdf", sep=''))
 
 #  UN Environment Programme and the World Meteorological Organisation (WMO)
 # World Climate Research Program
+
+
+
+######################
+
+sp <- data.frame(model$theta)
+sp$document <-rownames(sp) 
+rownames(sp) <- 1:nrow(sp)
+sp <- sp%>%  plyr::rename(c("document"="id"))
+
+sum.probab <- merge(sp,(select(data,id,date_published)), by="id")
+
+sum.probab$date_published<-as.numeric(sum.probab$date_published)
+sum.probab$date_published<- as.Date(as.POSIXct((sum.probab$date_published/1000), origin = "1970-01-01"))
+
+
+grouped.sp <- sum.probab %>% 
+  mutate(month=format(date_published,'%y-%V')) %>%
+  gather(topic, probability, t_1:t_10) %>%
+  tidyr::separate(topic, into =c("t","topic")) %>% 
+  select(-t)%>%
+  select(-id,-date_published)
+
+grouped.sp<- grouped.sp%>%  
+  group_by(month,topic) %>%
+  summarise(sum_probability=mean(probability))
+
+for(i in 1:max(as.numeric(grouped.sp$topic))){
+  topic <- grouped.sp %>% 
+    filter(topic==i)
+  g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
+  geom_bar(stat="identity",position="stack")+
+  ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle(paste0("Avg of probabilities of topic ",i," aggregated by month"))
+  ggsave(paste0(plots_dir,"Topic-",i,".pdf"))
+}
+
+global.topic.probab <- sum.probab %>% 
+  # mutate(month=format(date_published,'%y-%m')) %>%
+  gather(topic, probability, t_1:t_10) %>%
+  tidyr::separate(topic, into =c("t","topic")) %>% 
+  select(-t)%>%
+  select(-id,-date_published)
+
+global.topic.probab <- global.topic.probab %>%  
+  group_by(topic) %>%
+  summarise(global_probability=mean(probability))
+
+g<-ggplot(global.topic.probab, aes(x=topic,y=global_probability))+ 
+  geom_bar(stat="identity",position="stack")+
+  ylim(0.0, (max(global.topic.probab$global_probability)+0.05))+
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle(paste0("Overall probability per topic"))
+ ggsave(paste0(plots_dir,"Global-probability-per-topic.pdf"))
+
+ grouped.glob.top <- merge(grouped.sp, global.topic.probab, by="topic")
+
+ for(i in 1:max(as.numeric(grouped.sp$topic))){
+   topic <- grouped.glob.top %>% filter(topic==i)
+   g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
+     geom_bar(stat="identity",position="stack")+
+     ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+     geom_hline(yintercept = tgp)+
+     theme(axis.text.x = element_text(angle = 90))+
+     ggtitle(paste0("Probab of t_",i," divided by global probability of the topic, aggr by week"))+
+     xlab("week")+
+     ylab("probability")
+     
+   ggsave(paste0(plots_dir,"Topic-",i,"+global.pdf"))
+   
+   # g<-ggplot(data=topic,aes(x=month))+
+   # geom_bar(aes(y=sum_probability),stat="identity",position ="identity",alpha=.3,fill='lightblue',color='lightblue4') +
+  # geom_bar(aes(y=global_probability),stat="identity",position ="identity",alpha=.8,fill='pink',color='red')
+ }
+ 
