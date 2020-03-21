@@ -6,6 +6,7 @@ library(reshape2)
 library(dplyr)
 library(wordcloud)
 library(tidyr)
+library(data.table)
 
 ####selected parameters to check the results####
 
@@ -377,7 +378,7 @@ sum.probab$date_published<- as.Date(as.POSIXct((sum.probab$date_published/1000),
 
 
 grouped.sp <- sum.probab %>% 
-  mutate(month=format(date_published,'%y-%V')) %>%
+  mutate(month=format(date_published,'%y-%m')) %>% ##month
   gather(topic, probability, t_1:t_10) %>%
   tidyr::separate(topic, into =c("t","topic")) %>% 
   select(-t)%>%
@@ -387,19 +388,8 @@ grouped.sp<- grouped.sp%>%
   group_by(month,topic) %>%
   summarise(sum_probability=mean(probability))
 
-for(i in 1:max(as.numeric(grouped.sp$topic))){
-  topic <- grouped.sp %>% 
-    filter(topic==i)
-  g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
-  geom_bar(stat="identity",position="stack")+
-  ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
-  theme(axis.text.x = element_text(angle = 90))+
-  ggtitle(paste0("Avg of probabilities of topic ",i," aggregated by month"))
-  ggsave(paste0(plots_dir,"Topic-",i,".pdf"))
-}
 
 global.topic.probab <- sum.probab %>% 
-  # mutate(month=format(date_published,'%y-%m')) %>%
   gather(topic, probability, t_1:t_10) %>%
   tidyr::separate(topic, into =c("t","topic")) %>% 
   select(-t)%>%
@@ -420,13 +410,14 @@ g<-ggplot(global.topic.probab, aes(x=topic,y=global_probability))+
 
  for(i in 1:max(as.numeric(grouped.sp$topic))){
    topic <- grouped.glob.top %>% filter(topic==i)
+   tgp<- grouped.glob.top[grouped.glob.top$topic==i,]$global_probability
    g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
      geom_bar(stat="identity",position="stack")+
-     ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+     ylim(0.0, (max(grouped.sp$sum_probability)))+
      geom_hline(yintercept = tgp, lty="dashed")+
      theme(axis.text.x = element_text(angle = 90))+
-     ggtitle(paste0("Probab of t_",i," divided by global probability of the topic, aggr by week"))+
-     xlab("week")+
+     ggtitle(paste0("Probab of t_",i,"aggregated by month"))+ ##month
+     xlab("month")+ ##month
      ylab("probability")
      
    ggsave(paste0(plots_dir,"Topic-",i,"+global.pdf"))
