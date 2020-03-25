@@ -24,7 +24,7 @@ model_dir <- paste0("./results/twitter/3M")
 ##################
 
 
-data <- read.csv2("./data/twitter/split-3M/xaa.csv", stringsAsFactors = FALSE, sep=",", quote = "\"",
+data <- read.csv2("xaa.csv", stringsAsFactors = FALSE, sep=",", quote = "\"",
                   colClasses = c("factor","character"), encoding = "UTF-8")
 data$id<- 1:nrow(data)
 
