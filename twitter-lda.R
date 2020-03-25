@@ -12,21 +12,19 @@ library(stringr)
 
 
 ####selected parameters to check the results####
-k_list <- seq(5, 5, by = 1)
-# k_list <- c(5,10,15)
-# k_list<-10 #cluster number
+# k_list <- seq(5, 5, by = 1)
+k_list <- c(5,10,15)
 alpha<-1 # 0.alpha value
 wid<-2 #for number of leading zeros in models
 ngram<- 1#ngrams
 al<- alpha%>% formatC(width=wid, flag = "0")
-coherence_dir <- paste0("./results/twitter") ##directory of models
-model_dir <- paste0("./results/twitter")
-# name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
+coherence_dir <- paste0("./results/twitter/3M") ##directory of models
+model_dir <- paste0("./results/twitter/3M")
 
 ##################
 
 
-data <- read.csv2("./data/twitter/split-2M/xaa.csv", stringsAsFactors = FALSE, sep=",", quote = "\"",
+data <- read.csv2("./data/twitter/split-3M/xaa.csv", stringsAsFactors = FALSE, sep=",", quote = "\"",
                   colClasses = c("factor","character"), encoding = "UTF-8")
 data$id<- 1:nrow(data)
 
@@ -41,11 +39,10 @@ dtm <- CreateDtm(data$text,
                  stopword_vec = c(stopwords::stopwords("en"), stopwords::stopwords(source = "smart"), custom.stopwords),
                  # stopword_vec = stopwords::stopwords(source = "smart"),
                  ngram_window = c(1, ngram))
-# image(dtm[1:500,1:500])
 original_tf <- TermDocFreq(dtm = dtm)
 
-saveRDS(dtm, file = "dtm_2M_ngram1.Rds")
-# saveRDS(original_tf, file = "original_tf.Rds")
+saveRDS(dtm, file = "dtm_3M_ngram1.Rds")
+saveRDS(original_tf, file = "original_tf_3M.Rds")
 
 # ##alpha=0.1
 # 
@@ -62,7 +59,7 @@ run.model.fun1 <- function(k){  ##alpha
   m
 }
 
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1, cpus=1) ##alpha 
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1, cpus=2) ##alpha 
 # 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
                             coherence = sapply(model_list, function(x) mean(x$coherence)),
