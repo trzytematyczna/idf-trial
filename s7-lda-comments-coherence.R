@@ -91,7 +91,7 @@ terms.summary <-data.frame(t(model$phi))
 terms.summary$word <- rownames(terms.summary) 
 rownames(terms.summary) <- 1:nrow(terms.summary)
 terms.summary <- terms.summary %>% 
-  melt(idvars = "word") %>%
+  reshape2::melt(idvars = "word") %>%
   plyr::rename(c("variable" ="topic"))%>%  
   group_by(topic) %>% 
   arrange(desc(value))
@@ -110,7 +110,7 @@ document_topic <- data.frame(model$theta)
 document_topic$document <-rownames(document_topic) 
 rownames(document_topic) <- 1:nrow(document_topic)
 document_topic <- document_topic %>% 
-  melt(id.vars = "document") %>% 
+  reshape2::melt(id.vars = "document") %>% 
   rename(topic = variable) %>% 
   tidyr::separate(topic, into =c("t","topic")) %>% 
   select(-t) %>% 
@@ -201,3 +201,5 @@ for(i in 1:max(as.numeric(grouped.sp$topic))){
   ggsave(paste0(plots_dir,"Comments_Topic-",i,"+global.pdf"))
   
 }
+
+
