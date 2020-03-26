@@ -9,9 +9,9 @@ library(tidyr)
 
 ####selected parameters to check the results####
 
-k_list<-10 #cluster number
+k_list<-seq(1,25,by=1) #cluster number
 alpha<-0.1 # alpha value
-ngram<-2
+ngram<-1
 
 name<-paste0( "_K",k_list,"_ngram",ngram, "_al",alpha)
 data_dir<-"./data/guardian/full_comments_guardian.csv"
