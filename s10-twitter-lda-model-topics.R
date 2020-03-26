@@ -10,36 +10,21 @@ library(tidyr)
 ####selected parameters to check the results####
 
 k_list<-5 #cluster number
-alpha<-1 # 0.alpha value
-wid<-2 #for number of leading zeros in models
-ngram<-1 #ngrams
-al<- alpha%>% formatC(width=wid, flag = "0")
-model_dir <- paste0("./results/twitter")
-name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
-
+alpha<-0.1 # 0.alpha value
+ngram<-1
+model_dir <- paste0("./results/twitter-lda/2M/models")
+name<-paste( "_K",k_list,"_ngram",ngram, "_al",alpha, sep="")
+dtm_file<-"./results/twitter-lda/2M/rdata/dtm_2M_ngram1.Rds"
+res_dir <- paste0("./results/twitter-lda/2M/K",k_list,"-ngram",ngram,"-al",alpha)
 ##################
+if(!exists(res_dir)) dir.create(res_dir)
 
-
-# data <- read.csv2("./data/twitter/split-1M/xaa.csv", stringsAsFactors = FALSE, sep=",", quote = "\"",
-#                   colClasses = c("factor","character"), encoding = "UTF-8")
-# data$id<- 1:nrow(data)
-# 
-# data$text <- data$text %>% str_replace_all("[^[:graph:]]", " ") 
-# dtm <- CreateDtm(data$text, 
-#                  doc_names = data$id, 
-#                  # remove_punctuation = TRUE,
-#                  # remove_numbers = TRUE,
-#                  # lower = TRUE,
-#                  # stopword_vec = c(stopwords::stopwords("en"), stopwords::stopwords(source = "smart")),
-#                  stopword_vec = stopwords::stopwords(source = "smart"),
-#                  ngram_window = c(1, 1))
-# # image(dtm[1:500,1:500])
-dtm<-readRDS("dtm_2M_ngram1.Rds")
+dtm<-readRDS(dtm_file)
 original_tf <- TermDocFreq(dtm = dtm)
 
 
-run.model.fun <- function(k){
-  filename = file.path(model_dir, paste0(k, "_topics_a",al,".rda"))
+read.model.fun <- function(k){
+  filename = file.path(model_dir, paste0(k, "_topics_a",alpha,".rda"))
   if (!file.exists(filename)) {
     print("Nofile!")
   } else {
@@ -48,7 +33,7 @@ run.model.fun <- function(k){
   m
 }
 
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun)
+model_list <- TmParallelApply(X = k_list, FUN = read.model.fun)
 
 
 # rows of phi = topics; columns = tokens (words). 
@@ -98,13 +83,13 @@ document_topic <- document_topic %>%
 model$topic_linguistic_dist <- CalcHellingerDist(model$phi)
 model$hclust <- hclust(as.dist(model$topic_linguistic_dist), "ward.D")
 model$hclust$labels <- paste(model$hclust$labels, model$labels[ , 1])
-pdf(paste0("./results/twitter/dendrogram-comments-k5-al01",name,".pdf"))
+pdf(paste0(res_dir,"/dendrogram",name,".pdf"))
 plot(model$hclust)
 dev.off()
 
 #visualising topics of words based on the max value of phi
 # set.seed(1234)
-pdf(paste("./results/twitter/cluster-comments-k5-al01",name,".pdf",sep=""))
+pdf(paste0(res_dir,"/cluster",name,".pdf"))
 for(i in 1:length(unique(top20.summary$topic))){  
   layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
   par(mar=rep(0, 4))
