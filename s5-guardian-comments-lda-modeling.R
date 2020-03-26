@@ -12,7 +12,7 @@ library(tidyverse)
 
 ####selected parameters to check the results####
 # k_list <- seq(1, 1, by = 1)
-k_list<-10 #cluster number
+k_list<-seq(1,25,by=1) #cluster number
 ngram<-2
 alpha<-0.1 # 0.alpha value
 coherence_dir <- paste0("./results/guardian-lda/comments/coherence/ngram_1:",ngram) ##directory of models
