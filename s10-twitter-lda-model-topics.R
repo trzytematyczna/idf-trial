@@ -9,18 +9,20 @@ library(tidyr)
 
 ####selected parameters to check the results####
 
-k_list<-5 #cluster number
+k_list<-10 #cluster number
 alpha<-0.1 # 0.alpha value
 ngram<-1
-model_dir <- paste0("./results/twitter-lda/2M/models")
+
 name<-paste( "_K",k_list,"_ngram",ngram, "_al",alpha, sep="")
-dtm_file<-"./results/twitter-lda/2M/rdata/dtm_2M_ngram1.Rds"
-res_dir <- paste0("./results/twitter-lda/2M/K",k_list,"-ngram",ngram,"-al",alpha)
+dtm_file<-"./results/twitter-lda/3M/rdata/dtm_3M_ngram1.Rds"
+original_tf_file<-"./results/twitter-lda/3M/rdata/original_tf_3M_ngram1.Rds"
+model_dir <- paste0("./results/twitter-lda/3M/models")
+res_dir <- paste0("./results/twitter-lda/3M/K",k_list,"-ngram",ngram,"-al",alpha)
 ##################
 if(!exists(res_dir)) dir.create(res_dir)
 
 dtm<-readRDS(dtm_file)
-original_tf <- TermDocFreq(dtm = dtm)
+original_tf <- readRDS(original_tf_file)
 
 
 read.model.fun <- function(k){
