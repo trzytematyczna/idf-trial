@@ -114,6 +114,6 @@ for(gfile in files){
     res<-readGuardianJson(data)
     res_articles<-rbind(res_articles,res[[1]])
     res_comments<-rbind(res_comments,res[[2]])
-    write.csv2(res_articles,"./data/full_articles_guardian.csv", row.names = FALSE, append = TRUE)
-    write.csv2(res_comments,"./data/full_comments_guardian.csv", row.names = FALSE, append = TRUE)
+    write.csv2(res_articles,"./data/full_articles_guardian-26-03.csv", row.names = FALSE, append = TRUE)
+    write.csv2(res_comments,"./data/full_comments_guardian-26-03.csv", row.names = FALSE, append = TRUE)
 }
