@@ -13,8 +13,9 @@ library(tidyverse)
 ####selected parameters to check the results####
 # k_list <- seq(1, 1, by = 1)
 k_list<-seq(1,25,by=1) #cluster number
-ngram<-2
+ngram<-1
 alpha<-0.1 # 0.alpha value
+
 coherence_dir <- paste0("./results/guardian-lda/comments/coherence/ngram_1:",ngram) ##directory of models
 model_dir <- paste0("./results/guardian-lda/comments/models/ngram_1:",ngram,"/alpha_",alpha)
 name<-paste0("_k",k_list,"_ngram",ngram, "_al",alpha)
