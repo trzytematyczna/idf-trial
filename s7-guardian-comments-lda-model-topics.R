@@ -9,19 +9,20 @@ library(tidyr)
 
 ####selected parameters to check the results####
 
-k_list<-5 #cluster number
-alpha<-1 # 0.alpha value
-wid<-2 #for number of leading zeros in models
-ngram<-2 #ngrams
-al<- alpha%>% formatC(width=wid, flag = "0")
-plots_dir <- paste0("./plots/lda/") ##directory of plots
-model_dir <- paste0("./results/lda/comments/models/ngram_1:",ngram,"/alpha_",al)
-name<-paste("_ngram",ngram, "_al",formatC(al, width=2, flag = "0"), "_k",k_list, sep="")
+k_list<-10 #cluster number
+alpha<-0.1 # alpha value
+ngram<-2
+
+name<-paste0( "_K",k_list,"_ngram",ngram, "_al",alpha)
+data_dir<-"./data/guardian/full_comments_guardian.csv"
+plots_dir <- paste0("./plots/lda/comments/") ##directory of plots
+model_dir <- paste0("./results/guardian-lda/comments/models/ngram_1:",ngram,"/alpha_",alpha)
+res_dir <- paste0("./results/guardian-lda/comments/topics/K",k_list,"-ngram",ngram,"-al",alpha)
 
 ##################
+if(!exists(res_dir)) {dir.create(res_dir)}
 
-
-csv_data <- read.csv2("./data/full_comments_guardian.csv", stringsAsFactors = FALSE)
+csv_data <- read.csv2(data_dir, stringsAsFactors = FALSE)
 csv_data<-csv_data[!is.na(csv_data$text),]
 data<-csv_data
 data$text<-as.character(data$text)
@@ -39,10 +40,7 @@ data.dfm <- dfm(doc.tokens, ngrams=1:ngram)
 
 data.trimmed <- data.dfm %>% dfm_trim(min_docfreq = 0.01, max_docfreq = 0.5, docfreq_type = "prop")
 ### min_termfreq = 0.9, termfreq_type = "quantile",
-
 data.trimmed <- data.trimmed[ntoken(data.trimmed) > 0,]
-
-# data.trimmed
 
 # tf <- textstat_frequency(data.trimmed)
 # colnames(tf)<-c("term","term_freq","rank","doc_freq","group")
@@ -64,7 +62,7 @@ head(tf_bigrams[ order(tf_bigrams$term_freq, decreasing = TRUE) , ], 10)
 
 
 run.model.fun <- function(k){
-  filename = file.path(model_dir, paste0(k, "_topics_a",al,".rda"))
+  filename = file.path(model_dir, paste0(k, "_topics_a",alpha,".rda"))
   if (!file.exists(filename)) {
     print("Nofile!")
   } else {
@@ -123,13 +121,13 @@ document_topic <- document_topic %>%
 model$topic_linguistic_dist <- CalcHellingerDist(model$phi)
 model$hclust <- hclust(as.dist(model$topic_linguistic_dist), "ward.D")
 model$hclust$labels <- paste(model$hclust$labels, model$labels[ , 1])
-pdf(paste0("./results/lda/dendrogram-comments-k5-al01",name,".pdf"))
+pdf(paste0(res_dir,"/dendrogram",name,".pdf"))
 plot(model$hclust)
 dev.off()
 
 #visualising topics of words based on the max value of phi
 # set.seed(1234)
-pdf(paste("./results/lda/cluster-comments-k5-al01",name,".pdf",sep=""))
+pdf(paste0(res_dir,"/cluster",name,".pdf",sep=""))
 for(i in 1:length(unique(top20.summary$topic))){  
   layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
   par(mar=rep(0, 4))
@@ -145,61 +143,61 @@ dev.off()
 
 
 ######################
-
-sp <- data.frame(model$theta)
-sp$document <-rownames(sp) 
-rownames(sp) <- 1:nrow(sp)
-sp <- sp%>%  plyr::rename(c("document"="id"))
-
-sum.probab <- merge(sp,(select(data,id,date)), by="id")
-
-sum.probab$date<- as.Date(sum.probab$date)
-
-grouped.sp <- sum.probab %>% 
-  mutate(month=format(date,'%y-%m')) %>%
-  gather(topic, probability, t_1:t_5) %>% ##topic_number k_list
-  tidyr::separate(topic, into =c("t","topic")) %>% 
-  select(-t)%>%
-  select(-id,-date)
-
-grouped.sp<- grouped.sp%>%  
-  group_by(month,topic) %>%
-  summarise(sum_probability=mean(probability))
-
-
-global.topic.probab <- sum.probab %>% 
-  gather(topic, probability, t_1:t_5) %>% ##topic_number k_list
-  tidyr::separate(topic, into =c("t","topic")) %>% 
-  select(-t)%>%
-  select(-id,-date)
-
-global.topic.probab <- global.topic.probab %>%  
-  group_by(topic) %>%
-  summarise(global_probability=mean(probability))
-
-g<-ggplot(global.topic.probab, aes(x=topic,y=global_probability))+ 
-  geom_bar(stat="identity",position="stack")+
-  ylim(0.0, (max(global.topic.probab$global_probability)+0.05))+
-  theme(axis.text.x = element_text(angle = 90))+
-  ggtitle(paste0("Overall probability per topic"))
-ggsave(paste0(plots_dir,"Comments_Global-probability-per-topic-t",k_list,".pdf"))
-
-grouped.glob.top <- merge(grouped.sp, global.topic.probab, by="topic")
-
-for(i in 1:max(as.numeric(grouped.sp$topic))){
-  topic <- grouped.glob.top %>% filter(topic==i)
-  tgp<- grouped.glob.top[grouped.glob.top$topic==i,]$global_probability
-  g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
-    geom_bar(stat="identity",position="stack")+
-    ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
-    geom_hline(yintercept = tgp, lty="dashed")+
-    theme(axis.text.x = element_text(angle = 90))+
-    ggtitle(paste0("Probab of topic",i,"aggregated by month"))+
-    xlab("month")+
-    ylab("probability")
-  
-  ggsave(paste0(plots_dir,"Comments_Topic-",i,"+global.pdf"))
-  
-}
-
-
+# 
+# sp <- data.frame(model$theta)
+# sp$document <-rownames(sp) 
+# rownames(sp) <- 1:nrow(sp)
+# sp <- sp%>%  plyr::rename(c("document"="id"))
+# 
+# sum.probab <- merge(sp,(select(data,id,date)), by="id")
+# 
+# sum.probab$date<- as.Date(sum.probab$date)
+# 
+# grouped.sp <- sum.probab %>% 
+#   mutate(month=format(date,'%y-%m')) %>%
+#   gather(topic, probability, t_1:t_5) %>% ##topic_number k_list
+#   tidyr::separate(topic, into =c("t","topic")) %>% 
+#   select(-t)%>%
+#   select(-id,-date)
+# 
+# grouped.sp<- grouped.sp%>%  
+#   group_by(month,topic) %>%
+#   summarise(sum_probability=mean(probability))
+# 
+# 
+# global.topic.probab <- sum.probab %>% 
+#   gather(topic, probability, t_1:t_5) %>% ##topic_number k_list
+#   tidyr::separate(topic, into =c("t","topic")) %>% 
+#   select(-t)%>%
+#   select(-id,-date)
+# 
+# global.topic.probab <- global.topic.probab %>%  
+#   group_by(topic) %>%
+#   summarise(global_probability=mean(probability))
+# 
+# g<-ggplot(global.topic.probab, aes(x=topic,y=global_probability))+ 
+#   geom_bar(stat="identity",position="stack")+
+#   ylim(0.0, (max(global.topic.probab$global_probability)+0.05))+
+#   theme(axis.text.x = element_text(angle = 90))+
+#   ggtitle(paste0("Overall probability per topic"))
+# ggsave(paste0(plots_dir,"Comments_Global-probability-per-topic-t",k_list,".pdf"))
+# 
+# grouped.glob.top <- merge(grouped.sp, global.topic.probab, by="topic")
+# 
+# for(i in 1:max(as.numeric(grouped.sp$topic))){
+#   topic <- grouped.glob.top %>% filter(topic==i)
+#   tgp<- grouped.glob.top[grouped.glob.top$topic==i,]$global_probability
+#   g<-ggplot(topic, aes(x=month,y=sum_probability))+ 
+#     geom_bar(stat="identity",position="stack")+
+#     ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+#     geom_hline(yintercept = tgp, lty="dashed")+
+#     theme(axis.text.x = element_text(angle = 90))+
+#     ggtitle(paste0("Probab of topic",i,"aggregated by month"))+
+#     xlab("month")+
+#     ylab("probability")
+#   
+#   ggsave(paste0(plots_dir,"Comments_Topic-",i,"+global.pdf"))
+#   
+# }
+# 
+# 
