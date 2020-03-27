@@ -12,7 +12,7 @@ library(tidyverse)
 
 ####selected parameters to check the results####
 # k_list <- seq(1, 1, by = 1)
-k_list<-seq(1,25,by=1) #cluster number
+k_list<-seq(1,15,by=1) #cluster number
 ngram<-1
 alpha<-0.1 # 0.alpha value
 
@@ -70,7 +70,8 @@ run.model.fun1 <- function(k){  ##alpha
     m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
     save(m, file = filename)
   } else {
-    load(filename)
+    # load(filename)
+    print("files exist!")
   }
   m
 }
