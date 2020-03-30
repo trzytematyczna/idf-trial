@@ -2,6 +2,8 @@
 .Rhistory
 .Rapp.history
 
+*.rda
+*.Rds
 data/**
 results/guardian-lda/comments/models/**
 results/guardian-lda/articles/models/**
