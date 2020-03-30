@@ -4,7 +4,7 @@
 
 data/**
 results/guardian-lda/comments/models/**
-
+results/guardian-lda/articles/models/**
 results/twitter-lda/2M/models/**
 results/twitter-lda/2M/rdata/**
 

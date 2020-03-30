@@ -11,8 +11,8 @@ library(tidyverse)
 
 
 ####selected parameters to check the results####
-# k_list <- seq(1, 1, by = 1)
-k_list<-seq(1,15,by=1) #cluster number
+k_list <- 5
+# k_list<-seq(1,15,by=1) #cluster number
 ngram<-1
 alpha<-0.1 # 0.alpha value
 
@@ -21,16 +21,19 @@ model_dir <- paste0("./results/guardian-lda/comments/models/ngram_1:",ngram,"/al
 name<-paste0("_k",k_list,"_ngram",ngram, "_al",alpha)
 
 ##################
-csv_data <- read.csv2("./data/full_comments_guardian.csv", stringsAsFactors = FALSE)
+csv_data <- read.csv2("./data/guardian/comments_fin.csv", stringsAsFactors = FALSE)
 csv_data<-csv_data[!is.na(csv_data$text),]
 data<-csv_data
 data$text<-as.character(data$text)
+
+custom.stopwords <- c("rt","amp","mt","climate","change","climatechange","jan","feb","mar","apr","may",
+                      "june","july","aug","sept","oct","nov","dec")
 
 data.corpus <- corpus(data, docid_field = "id", text_field = "text")
 doc.tokens <- tokens(data.corpus)
 doc.tokens <- doc.tokens%>% tokens(remove_punct = TRUE, remove_numbers = TRUE, remove_separators = TRUE) %>%
   tokens_tolower() %>%
-  tokens_select(stopwords(source='smart'),selection='remove')
+  tokens_select(c(stopwords(source='smart'),custom.stopwords, stopwords::stopwords("en")),selection='remove')
 data.dfm <- dfm(doc.tokens, ngrams=1:ngram)
 
 # featnames(data.dfm)
@@ -76,7 +79,7 @@ run.model.fun1 <- function(k){  ##alpha
   m
 }
 
-model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1, cpus=1) ##alpha
+model_list <- TmParallelApply(X = k_list, FUN = run.model.fun1, cpus=2) ##alpha
 
 coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
                             coherence = sapply(model_list, function(x) mean(x$coherence)),

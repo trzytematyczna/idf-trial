@@ -9,12 +9,12 @@ library(tidyr)
 
 ####selected parameters to check the results####
 
-k_list<-5
+k_list<-10
 alpha<-0.1 # alpha value
 ngram<-1
 
 name<-paste0( "_K",k_list,"_ngram",ngram, "_al",alpha)
-data_dir<-"./data/guardian/full_comments_guardian.csv"
+data_dir<-"./data/guardian/comments_fin.csv"
 plots_dir <- paste0("./plots/lda/comments/") ##directory of plots
 model_dir <- paste0("./results/guardian-lda/comments/models/ngram_1:",ngram,"/alpha_",alpha)
 res_dir <- paste0("./results/guardian-lda/comments/topics/K",k_list,"-ngram",ngram,"-al",alpha)
