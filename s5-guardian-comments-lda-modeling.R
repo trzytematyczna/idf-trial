@@ -11,7 +11,7 @@ library(tidyverse)
 
 
 ####selected parameters to check the results####
-k_list <- 5
+k_list <- 10
 # k_list<-seq(1,15,by=1) #cluster number
 ngram<-1
 alpha<-0.1 # 0.alpha value

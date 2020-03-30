@@ -9,7 +9,7 @@ library(tidyr)
 
 ####selected parameters to check the results####
 
-k_list<-10
+k_list<-5
 alpha<-0.1 # alpha value
 ngram<-1
 
