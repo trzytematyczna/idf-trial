@@ -15,9 +15,9 @@ ngram<- 1#ngrams
 
 data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
-rds_dir <- "./results2/guardian-comments/"
-model_dir <- paste0("./results2/guardian-comments/k-",k_list)
-res_dir <- "./results2/guardian-comments"
+rds_dir <- "./results/guardian-comments/"
+model_dir <- paste0("./results/guardian-comments/k-",k_list)
+res_dir <- "./results/guardian-comments"
 
 exp_name<-paste0("k-",k_list,"-alpha-",alpha,"-ngram-",ngram)
 rds_name<-paste0(data_name,"-ngram-",ngram,".Rds")

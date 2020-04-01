@@ -17,8 +17,8 @@ ngram<- 1#ngrams
 
 data_name<-"guardian-comments"
 data_dir<-"./data/guardian/full_comments_guardian.csv"
-rds_dir <- "./results2/guardian-comments/"
-model_dir <- "./results2/guardian-comments"
+rds_dir <- "./results/guardian-comments/"
+model_dir <- "./results/guardian-comments"
 
 exp_name<-paste0("k-",k_list,"-alpha-",alpha,"-ngram-",ngram)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
