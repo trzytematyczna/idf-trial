@@ -14,6 +14,13 @@ ngram<- 1#ngrams
 
 data_name<-"twitter-3M"
 data_dir<-"./data/twitter/split-3M/xaa.csv"
+
+# data_name<-"guardian-comments"
+# data_dir<-"./data/guardian/full_comments_guardian.csv"
+
+# data_name <- "guardian-articles"
+# data_dir <- "./data/guardian/full_articles_guardian.csv"
+
 rds_dir <- paste0("./results/",data_name,"/")
 model_dir <- paste0("./results/",data_name,"/k-",k_list)
 res_dir <- paste0("./results/",data_name,"/k-",k_list,"/")
@@ -59,7 +66,7 @@ terms.summary <-data.frame(t(model$phi))
 terms.summary$word <- rownames(terms.summary) 
 rownames(terms.summary) <- 1:nrow(terms.summary)
 terms.summary <- terms.summary %>% 
-  reshape2::melt(idvars = "word") %>%
+  data.table::melt(idvars = "word") %>%
   plyr::rename(c("variable" ="topic"))%>%  
   group_by(topic) %>% 
   arrange(desc(value))
@@ -78,7 +85,7 @@ document_topic <- data.frame(model$theta)
 document_topic$document <-rownames(document_topic) 
 rownames(document_topic) <- 1:nrow(document_topic)
 document_topic <- document_topic %>% 
-  reshape2::melt(id.vars = "document") %>% 
+  data.table::melt(id.vars = "document") %>% 
   rename(topic = variable) %>% 
   tidyr::separate(topic, into =c("t","topic")) %>% 
   select(-t) %>% 
@@ -122,11 +129,13 @@ global.topic.probab2 <- global.topic.probab %>%
   group_by(topic) %>%
   summarise(med_probability=median(probability))
 
-global.probabilities <- merge(global.topic.probab1, global.topic.probab2, by="topic")
+global.probabilities <- merge(global.topic.probab1, global.topic.probab2, by="topic")%>%
+  mutate(topic=factor(topic,levels = 1:10))
+
 
 g<-ggplot(global.probabilities, aes(x=reorder(topic, avg_probability),y=avg_probability))+
   geom_bar(stat="identity",position="stack")+
-  ylim(0.0, (max(global.probabilities$avg_probability)+0.05))+
+  ylim(0.0, (max(global.probabilities$avg_probability)))+
   theme(axis.text.x = element_text(angle = 90))+
   ggtitle(paste0("Overall probability per topic"))
 ggsave(paste0(res_dir,data_name,"-",exp_name,"-global-avg-probabilities.pdf"))
@@ -146,7 +155,9 @@ grouped.sp<- grouped.sp%>%
 
 
 
-grouped.glob.top <- merge(grouped.sp, global.probabilities, by="topic")
+grouped.glob.top <- merge(grouped.sp, global.probabilities, by="topic")%>%
+  mutate(topic=factor(topic,levels = 1:10))
+
 
 col <- c("#CC6666", "#9999CC", "#66CC99")
 
@@ -156,7 +167,7 @@ for(i in 1:max(as.numeric(grouped.sp$topic))){
   tgp_m<- grouped.glob.top[grouped.glob.top$topic==i,]$med_probability
   g<-ggplot(topic, aes(x=month,y=sum_probability))+
     geom_bar(stat="identity",position="stack")+
-    ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+    ylim(0.0, (max(grouped.sp$sum_probability)))+
     geom_hline(yintercept = tgp_a, lty="dashed", color=col[1])+
     geom_hline(yintercept = tgp_m, lty="dashed",color=col[3])+
     theme(axis.text.x = element_text(angle = 90))+
@@ -168,3 +179,18 @@ for(i in 1:max(as.numeric(grouped.sp$topic))){
   # ggsave(paste0(plots_dir,"Comments_Topic-",i,"+global.pdf"))
 
 }
+
+
+######### all topics in one graph
+
+g<-ggplot(grouped.glob.top, aes(x=month,y=sum_probability))+
+  geom_bar(stat="identity",position="stack")+
+  ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+  geom_hline(data=global.probabilities, aes(yintercept = avg_probability), lty="dashed", color=col[1])+
+  geom_hline(data=global.probabilities, aes(yintercept = med_probability), lty="dashed",color=col[3])+
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle(paste0(data_name,"-",exp_name))+
+  xlab("month")+
+  ylab("probability")+
+  facet_wrap(.~topic, ncol=2)
+ggsave(paste0(res_dir,data_name,"-",exp_name,"-all-topics-probabilities.pdf"))
