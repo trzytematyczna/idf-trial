@@ -10,15 +10,22 @@ library(stringr)
 
 
 ####selected parameters to check the results####
-k_list<-5
+k_list<-10
 # k_list <- c(5,10,15)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"guardian-comments"
-data_dir<-"./data/guardian/full_comments_guardian.csv"
-rds_dir <- "./results/guardian-comments/"
-model_dir <- "./results/guardian-comments"
+data_name<-"twitter-4M"
+data_dir<-"./data/twitter/split-4M/twitter-4M-sampled.csv"
+
+# data_name<-"guardian-comments"
+# data_dir<-"./data/guardian/full_comments_guardian.csv"
+
+# data_name <- "guardian-articles"
+# data_dir <- "./data/guardian/full_articles_guardian.csv"
+
+rds_dir <- paste0("./results/",data_name,"/")
+model_dir <- paste0("./results/",data_name,"/k-",k_list)
 
 exp_name<-paste0("k-",k_list,"-alpha-",alpha,"-ngram-",ngram)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
@@ -32,7 +39,12 @@ custom.stopwords <- c("rt","amp","mt","climate","change","climatechange","jan","
 ##################
   
   
-data <- read.csv2(data_dir, stringsAsFactors = FALSE)
+if(data_name %like% "twitter"){
+  data <- read.csv2(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"", colClasses = c("factor","character"))#, encoding = "UTF-8")
+  data$id<- 1:nrow(data)
+}else{
+  data<- read.csv2(data_dir, stringsAsFactors = FALSE)
+}
 
 dtm <- CreateDtm(data$text, 
                    doc_names = data$id, 
