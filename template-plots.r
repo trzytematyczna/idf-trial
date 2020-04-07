@@ -12,14 +12,14 @@ k_list<-10
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-3M"
-data_dir<-"./data/twitter/split-3M/xaa.csv"
+# data_name<-"twitter-3M"
+# data_dir<-"./data/twitter/split-3M/xaa.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
 
-# data_name <- "guardian-articles"
-# data_dir <- "./data/guardian/full_articles_guardian.csv"
+data_name <- "guardian-articles"
+data_dir <- "./data/guardian/full_articles_guardian.csv"
 
 rds_dir <- paste0("./results/",data_name,"/")
 model_dir <- paste0("./results/",data_name,"/k-",k_list)
@@ -143,7 +143,7 @@ ggsave(paste0(res_dir,data_name,"-",exp_name,"-global-avg-probabilities.pdf"))
 
 
 grouped.sp <- sum.probab %>%
-  mutate(month=format(date,'%y-%m')) %>%
+  mutate(month=format(date,'%y-%V')) %>%
   gather(topic, probability, t_1:!!sym(tmax)) %>% ##topic_number k_list
   tidyr::separate(topic, into =c("t","topic")) %>%
   select(-t)%>%
@@ -182,6 +182,8 @@ for(i in 1:max(as.numeric(grouped.sp$topic))){
 
 
 ######### all topics in one graph
+# labs<-grouped.glob.top$month
+# labs = grouped.glob.top[seq(1, nrow(grouped.glob.top), 2), ]$month
 
 g<-ggplot(grouped.glob.top, aes(x=month,y=sum_probability))+
   geom_bar(stat="identity",position="stack")+
@@ -190,7 +192,8 @@ g<-ggplot(grouped.glob.top, aes(x=month,y=sum_probability))+
   geom_hline(data=global.probabilities, aes(yintercept = med_probability), lty="dashed",color=col[3])+
   theme(axis.text.x = element_text(angle = 90))+
   ggtitle(paste0(data_name,"-",exp_name))+
-  xlab("month")+
+  xlab("week")+
   ylab("probability")+
+  # scale_x_date(breaks = grouped.glob.top$month[seq(1, length(grouped.glob.top$month), by = 2)])+
   facet_wrap(.~topic, ncol=2)
-ggsave(paste0(res_dir,data_name,"-",exp_name,"-all-topics-probabilities.pdf"))
+ggsave(paste0(res_dir,data_name,"-",exp_name,"-all-topics-week-probabilities.pdf"))

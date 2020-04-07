@@ -16,7 +16,7 @@ alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
 data_name<-"twitter-4M"
-data_dir<-"./data/twitter/split-4M/twitter-4M-sampled.csv"
+data_dir<-"./data/twitter/split-3M/twitter-3M-sampled.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
