@@ -85,7 +85,7 @@ document_topic <- data.frame(model$theta)
 document_topic$document <-rownames(document_topic) 
 rownames(document_topic) <- 1:nrow(document_topic)
 document_topic <- document_topic %>% 
-  data.table::melt(id.vars = "document") %>% 
+  reshape2::melt(id.vars = "document") %>% 
   rename(topic = variable) %>% 
   tidyr::separate(topic, into =c("t","topic")) %>% 
   select(-t) %>% 
@@ -149,6 +149,7 @@ grouped.sp <- sum.probab %>%
   select(-t)%>%
   select(-id,-date)
 
+
 grouped.sp<- grouped.sp%>%
   group_by(month,topic) %>%
   summarise(sum_probability=mean(probability))
@@ -157,6 +158,7 @@ grouped.sp<- grouped.sp%>%
 
 grouped.glob.top <- merge(grouped.sp, global.probabilities, by="topic")%>%
   mutate(topic=factor(topic,levels = 1:10))
+
 
 
 col <- c("#CC6666", "#9999CC", "#66CC99")
@@ -185,6 +187,10 @@ for(i in 1:max(as.numeric(grouped.sp$topic))){
 # labs<-grouped.glob.top$month
 # labs = grouped.glob.top[seq(1, nrow(grouped.glob.top), 2), ]$month
 
+labs<-grouped.glob.top[grouped.glob.top$topic==1,]%>% arrange(month)
+xbreaks <- labs$month[seq(from = 1, to = nrow(labs), by = 10)]
+
+
 g<-ggplot(grouped.glob.top, aes(x=month,y=sum_probability))+
   geom_bar(stat="identity",position="stack")+
   ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
@@ -194,6 +200,53 @@ g<-ggplot(grouped.glob.top, aes(x=month,y=sum_probability))+
   ggtitle(paste0(data_name,"-",exp_name))+
   xlab("week")+
   ylab("probability")+
-  # scale_x_date(breaks = grouped.glob.top$month[seq(1, length(grouped.glob.top$month), by = 2)])+
+  scale_x_discrete(breaks = xbreaks)+
   facet_wrap(.~topic, ncol=2)
+g
 ggsave(paste0(res_dir,data_name,"-",exp_name,"-all-topics-week-probabilities.pdf"))
+
+
+
+source("functions-stats.R")
+data$text<-tolower(data$text)
+
+arts<-getDataByOrganization("IPCC", data)
+arts<-arts%>%
+  rbind(getDataByOrganization("Intergovernmental Panel on Climate Change",data))%>%
+  unique()
+
+
+n.dt<- document_topic[document_topic$document %in% arts$id,]%>%
+  plyr::rename(c("document"="id"))
+
+
+
+# arts.dt<-merge(n.dt,arts, by="id")%>% select(id,topic) %>% group_by(topic) %>% 
+topic.top1.word <- terms.summary %>% group_by(topic) %>% top_n(1)
+
+topic.top1.word <- topic.top1.word %>% group_by(topic, word) %>% filter(row_number() == 1) %>% 
+  ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
+
+topic.top1.word$labs <- paste(topic.top1.word$word," (",topic.top1.word$topic,")",sep="")
+
+arts.dt<-as.data.frame(n.dt)
+arts.dt<- arts.dt%>%
+  select(id,topic) %>%
+  group_by(topic) %>%
+  summarize(n=n())%>%
+  mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
+
+
+g<-ggplot(arts.dt, aes(x=reorder(topic,n), y=n))+
+  geom_col( ) +
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle("Topics of IPCC articles")+
+  coord_flip()+
+  xlab("topics")+
+  ylab("# articles")
+# geom_bar(stat="identity",position="stack")+
+  # ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+  # scale_x_discrete(breaks = xbreaks)+
+  # facet_wrap(.~topic, ncol=2)
+g
+
