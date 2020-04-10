@@ -80,9 +80,6 @@ comments.ipcc<-articles.from.ipcc.comments %>%
 wrong_comments<-comments.ipcc[comments.ipcc$date_published>comments.ipcc$date,]###comments to erase
 
 
-
-
-
 org.names<-c("Extinction Rebellion","Citizens Climate Lobby",
              "CSIRO",
              "Commonwealth Scientific and Industrial Research Organisation",
