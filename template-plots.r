@@ -66,7 +66,7 @@ terms.summary <-data.frame(t(model$phi))
 terms.summary$word <- rownames(terms.summary) 
 rownames(terms.summary) <- 1:nrow(terms.summary)
 terms.summary <- terms.summary %>% 
-  data.table::melt(idvars = "word") %>%
+  reshape2::melt(idvars = "word") %>%
   plyr::rename(c("variable" ="topic"))%>%  
   group_by(topic) %>% 
   arrange(desc(value))
@@ -249,4 +249,37 @@ g<-ggplot(arts.dt, aes(x=reorder(topic,n), y=n))+
   # scale_x_discrete(breaks = xbreaks)+
   # facet_wrap(.~topic, ncol=2)
 g
+
+
+
+#####
+
+topic.top1.word <- terms.summary %>% group_by(topic) %>% top_n(1)
+
+topic.top1.word <- topic.top1.word %>% group_by(topic, word) %>% filter(row_number() == 1) %>%
+  ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
+
+topic.top1.word$labs <- paste(topic.top1.word$word," (",topic.top1.word$topic,")",sep="")
+
+arts.pb<-as.data.frame(n.dt)
+arts.pb<- arts.pb%>%
+  # select(id,topic) %>%
+  group_by(topic) %>%
+  summarize(n=mean(value))%>%
+  mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
+
+
+g<-ggplot(arts.pb, aes(x=reorder(topic,n), y=n))+
+  geom_col( ) +
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle("Topics of IPCC articles")+
+  coord_flip()+
+  xlab("topics")+
+  ylab("probability of topic")
+# geom_bar(stat="identity",position="stack")+
+# ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+# scale_x_discrete(breaks = xbreaks)+
+# facet_wrap(.~topic, ncol=2)
+ggsave(paste0(res_dir, data_name, "-ipcc-wtopic-probab.pdf"))
+
 

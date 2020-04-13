@@ -11,14 +11,14 @@ library(stringr)
 # data_name<-"twitter-3M"
 # data_dir<-"./data/twitter/split-3M/xaa.csv"
 
-# data_name<-"guardian-comments"
-# data_dir<-"./data/guardian/full_comments_guardian.csv"
+data_name<-"guardian-articles"
+data_dir<-"./data/guardian/full_articles_guardian.csv"
 
-data_name <- "guardian-comments"
-data_dir <- "./data/guardian/full_comments_guardian.csv"
+# data_name <- "guardian-comments"
+# data_dir <- "./data/guardian/full_comments_guardian.csv"
 
 res_dir <- "./plots/"
-res_file <-paste0(res_dir,data_name,"-x-climatoscope.csv")
+res_file <-paste0(res_dir,data_name,"-x-climatoscope-titles.csv")
 
 climatoscope_file<-"./data/climatoscope-keywords.csv"
 
@@ -43,7 +43,7 @@ if(data_name %like% "twitter"){
 climatoscope<- read.csv2(climatoscope_file, stringsAsFactors = FALSE, sep=",")
 
 
-dtm <- CreateDtm(data$text, 
+dtm <- CreateDtm(data$title, 
                  doc_names = data$id, 
                  # remove_punctuation = TRUE,
                  # remove_numbers = TRUE,
