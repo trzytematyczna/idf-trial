@@ -23,7 +23,7 @@ library(stringr)
 
 # do.exp(exp.data)
 
-exp.data <- read.csv2("./test/test3.csv", stringsAsFactors = FALSE, sep=",", header = FALSE, quote = "\"", strip.white=TRUE)
+exp.data <- read.csv2("./test/test.csv", stringsAsFactors = FALSE, sep=",", header = FALSE, quote = "\"", strip.white=TRUE)
 # exp.data <- as.data.frame(matrix(ncol = 3))
 colnames(exp.data)<-c("dataname","datafile","resdir")
 
