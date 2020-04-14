@@ -25,4 +25,4 @@ for (i in data.files){
   sampled <- rbind(sampled,sample_n(df, lines.per.file))
 }
 
-sampled %>% write.csv2(sampled.file, quote = FALSE, row.names = FALSE)
+sampled %>% write.csv2(sampled.file, quote = TRUE, row.names = FALSE, sep=",")
