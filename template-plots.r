@@ -267,9 +267,11 @@ arts.pb<- arts.pb%>%
   group_by(topic) %>%
   summarize(n=mean(value))%>%
   mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
+  # mutate(topic=factor(topic,levels = 1:10))#, labels=topic.top1.word$labs))
 
 
 g<-ggplot(arts.pb, aes(x=reorder(topic,n), y=n))+
+# g<-ggplot(arts.pb, aes(x=topic, y=n))+
   geom_col( ) +
   theme(axis.text.x = element_text(angle = 90))+
   ggtitle("Topics of IPCC articles")+

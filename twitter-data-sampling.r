@@ -2,10 +2,10 @@ library(dplyr)
 library(data.table)
 
 
-max.data<-4000000
+max.data<-2000000
 
-data_name<-"twitter-4M"
-data_dir<-"./data/twitter/split-4M/"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/split-2M/"
 
 data.files <- list.files(data_dir)
 sampled.file <- paste0(data_dir, data_name, "-sampled.csv")
