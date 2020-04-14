@@ -7,4 +7,3 @@
 "twitter-3M", "./data/twitter/split-3M/file_7.csv", "./test/f7"
 "twitter-3M", "./data/twitter/split-3M/file_8.csv", "./test/f8"
 "twitter-3M", "./data/twitter/split-3M/file_9.csv", "./test/f9"
-"twitter-3M", "./data/twitter/split-3M/twitter-3M-sampled.csv", "./test/"

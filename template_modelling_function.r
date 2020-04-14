@@ -63,7 +63,7 @@ go.lda<-function(data_name, data_file, res_dir){
   
   
   if(data_name %like% "twitter"){
-    data <- read.csv2(data_file, stringsAsFactors = FALSE, sep=";", quote = "\"",  row.names=NULL, header = TRUE)#,colClasses = c("factor","character"), encoding = "UTF-8")
+    data <- read.csv2(data_file, stringsAsFactors = FALSE, sep=",", quote = "\"",  row.names=NULL, header = TRUE)#,colClasses = c("factor","character"), encoding = "UTF-8")
     data$id<- 1:nrow(data)
     data$from_user_name<-NULL
     data$from_user_followercount<-NULL
