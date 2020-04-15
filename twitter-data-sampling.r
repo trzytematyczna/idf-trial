@@ -2,10 +2,10 @@ library(dplyr)
 library(data.table)
 
 
-max.data<-2000000
+max.data<-1000000
 
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/"
+data_name<-"twitter-1M"
+data_dir<-"./data/twitter/split-1M/"
 
 data.files <- list.files(data_dir)
 sampled.file <- paste0(data_dir, data_name, "-sampled.csv")
@@ -26,12 +26,13 @@ for (i in data.files){
   df<-df[!df$from_user_name %like% "ClapRobot",]
   df<-df[!df$from_user_name %like% "OKCStormWatcher",]
   
+  new.sample <- sample_n(df, lines.per.file)
   
-  sampled <- rbind(sampled,sample_n(df, lines.per.file))
+  sampled <- rbind(sampled,new.sample)
 }
 
 # sampled %>% write.table(sampled.file, quote = TRUE, row.names = FALSE, sep=",")
-sampled %>% fwrite(sampled.file, quote = TRUE, row.names = FALSE, sep=",", qmethod = "double")
+sampled %>% arrange(date)%>% fwrite(sampled.file, quote = TRUE, row.names = FALSE, sep=",", qmethod = "double")
 
 #Climate: Hi: 46 Lo: 27 Precip: 0.0 Snow: 0.0
 #Climate Report: High: 34 Low: 17 Precip: 0.03 Snow: 0.2"

@@ -18,8 +18,8 @@ ngram<- 1#ngrams
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
 
-data_name <- "guardian-articles"
-data_dir <- "./data/guardian/full_articles_guardian.csv"
+# data_name <- "guardian-articles"
+# data_dir <- "./data/guardian/full_articles_guardian.csv"
 
 rds_dir <- paste0("./results/",data_name,"/")
 model_dir <- paste0("./results/",data_name,"/k-",k_list)

@@ -14,10 +14,10 @@ alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
 # data_name<-"guardian-comments"
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
-rds_dir <- "./test/a1/"
-model_dir<-"./test/a1"
+data_name<-"twitter-1M"
+data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
+rds_dir <- "./test/"
+model_dir<-"./test"
 res_dir<-model_dir
 
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
@@ -29,7 +29,7 @@ exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 rds_name<-paste0(data_name,"-ngram-",ngram,".Rds")
 dtm_file<-paste0(rds_dir,"dtm-",rds_name)
 original_tf_file <- paste0(rds_dir,"originaltf-",rds_name)
-model_name <- paste0("_topics-",exp_name, ".rda")
+model_name <- paste0("_topics_a",alpha, ".rda")
 
 ##################
 

@@ -97,7 +97,7 @@ go.lda<-function(data_name, data_file, res_dir){
     m
   }
   
-  model_list <- TmParallelApply(X = k_list, FUN = run.fun(k_list), cpus=4) ##alpha
+  model_list <- TmParallelApply(X = k_list, FUN = run.fun, cpus=4) ##alpha
   #
   coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
                               coherence = sapply(model_list, function(x) mean(x$coherence)),
