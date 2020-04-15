@@ -23,7 +23,7 @@ library(stringr)
 
 # do.exp(exp.data)
 
-exp.data <- read.csv2("./test/test.csv", stringsAsFactors = FALSE, sep=",", header = FALSE, quote = "\"", strip.white=TRUE)
+exp.data <- read.csv2("./test/test3.csv", stringsAsFactors = FALSE, sep=",", header = FALSE, quote = "\"", strip.white=TRUE)
 # exp.data <- as.data.frame(matrix(ncol = 3))
 colnames(exp.data)<-c("dataname","datafile","resdir")
 
@@ -63,7 +63,7 @@ go.lda<-function(data_name, data_file, res_dir){
   
   
   if(data_name %like% "twitter"){
-    data <- read.csv2(data_file, stringsAsFactors = FALSE, sep=",", quote = "\"",  row.names=NULL, header = TRUE)#,colClasses = c("factor","character"), encoding = "UTF-8")
+    data <- read.csv(data_file, stringsAsFactors = FALSE, sep=",", quote = "\"",  row.names=NULL, header = TRUE)#,colClasses = c("factor","character"), encoding = "UTF-8")
     data$id<- 1:nrow(data)
     data$from_user_name<-NULL
     data$from_user_followercount<-NULL
@@ -84,10 +84,10 @@ go.lda<-function(data_name, data_file, res_dir){
   saveRDS(original_tf, file = original_tf_file)
   
   
-  model_list <- TmParallelApply(X = k_list, FUN = function(k){  ##alpha
+  run.fun <- function(k){  ##alpha
     filename = file.path(model_dir, paste0(k, model_name)) ##alpha
     if (!file.exists(filename)) {
-      m <- FitLdaModel(dtm = dtm, k = k, iterations = 500, alpha = alpha) ##alpha
+      m <- FitLdaModel(dtm = dtm, k = k, iterations = 1, alpha = alpha) ##alpha #qwe
       m$k <- k
       m$coherence <- CalcProbCoherence(phi = m$phi, dtm = dtm, M = 5)
       save(m, file = filename)
@@ -95,7 +95,9 @@ go.lda<-function(data_name, data_file, res_dir){
       print("model file found!")
     }
     m
-  }, cpus=1) ##alpha
+  }
+  
+  model_list <- TmParallelApply(X = k_list, FUN = run.fun(k_list), cpus=4) ##alpha
   #
   coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
                               coherence = sapply(model_list, function(x) mean(x$coherence)),
@@ -107,6 +109,8 @@ go.lda<-function(data_name, data_file, res_dir){
     scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
   
   ggsave(file.path(model_dir,coherence_name),plot = g, device = "pdf") ##alpha
+  
+  rm(list=ls())
 
 }
 

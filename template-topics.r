@@ -13,16 +13,23 @@ k_list<-10
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"guardian-comments"
-# data_dir<-"./data/guardian/full_comments_guardian.csv"
-rds_dir <- "./results/guardian-comments/"
-model_dir <- paste0("./results/guardian-comments/k-",k_list)
-res_dir <- "./results/guardian-comments"
+# data_name<-"guardian-comments"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+rds_dir <- "./test/a1/"
+model_dir<-"./test/a1"
+res_dir<-model_dir
 
-exp_name<-paste0("k-",k_list,"-alpha-",alpha,"-ngram-",ngram)
+# data_dir<-"./data/guardian/full_comments_guardian.csv"
+# rds_dir <- "./results/guardian-comments/"
+# model_dir <- paste0("./results/guardian-comments/k-",k_list)
+# res_dir <- "./results/guardian-comments"
+
+exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 rds_name<-paste0(data_name,"-ngram-",ngram,".Rds")
 dtm_file<-paste0(rds_dir,"dtm-",rds_name)
 original_tf_file <- paste0(rds_dir,"originaltf-",rds_name)
+model_name <- paste0("_topics-",exp_name, ".rda")
 
 ##################
 
@@ -31,7 +38,7 @@ original_tf <- readRDS(original_tf_file)
 
 
 read.model.fun <- function(k){
-  filename = file.path(model_dir, paste0(k, "_topics_a",alpha,".rda"))
+  filename = file.path(model_dir, paste0(k, model_name))
   if (!file.exists(filename)) {
     print("Nofile!")
   } else {
@@ -90,13 +97,13 @@ document_topic <- document_topic %>%
 model$topic_linguistic_dist <- CalcHellingerDist(model$phi)
 model$hclust <- hclust(as.dist(model$topic_linguistic_dist), "ward.D")
 model$hclust$labels <- paste(model$hclust$labels, model$labels[ , 1])
-pdf(paste0(res_dir,"/dendrogram-",exp_name,".pdf"))
+pdf(paste0(res_dir,"/dendrogram-k-",k_list,"-",exp_name,".pdf"))
 plot(model$hclust)
 dev.off()
 
 #visualising topics of words based on the max value of phi
 # set.seed(1234)
-pdf(paste0(res_dir,"/cluster-",exp_name,".pdf"))
+pdf(paste0(res_dir,"/cluster-k-",k_list,"-",exp_name,".pdf"))
 for(i in 1:length(unique(top20.summary$topic))){  
   layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
   par(mar=rep(0, 4))

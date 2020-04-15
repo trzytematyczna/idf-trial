@@ -1,1 +1,2 @@
-"twitter-2M", "./data/twitter/split-2M/twitter-2M-sampled.csv", "./test/"
+"twitter-2M", "./data/twitter/split-2M/twitter-2M-sampled.csv", "./test/a1"
+"twitter-2M", "./data/twitter/split-2M/twitter-2M-sampled.csv", "./test/a2"
