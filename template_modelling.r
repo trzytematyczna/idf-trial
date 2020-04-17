@@ -29,12 +29,13 @@ data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
 rds_dir<-paste0("./test/")
 model_dir<-paste0("./test")
 
-exp_name<-paste0("k-",k_list,"-alpha-",alpha,"-ngram-",ngram)
+exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
-rds_name<-paste0(data_name,"-ngram-",ngram,".Rds")
-dtm_file<-paste0(rds_dir,"dtm-",rds_name)
-original_tf_file <- paste0(rds_dir,"originaltf-",rds_name)
 
+dtm_file<-paste0(rds_dir,"/dtm-",data_name,"-ngram-",ngram,".Rds")
+original_tf_file <- paste0(rds_dir,"/originaltf-",data_name,"-ngram-",ngram,".Rds")
+
+model_name <- paste0("_topics-",exp_name, ".rda")
   
 custom.stopwords <- c("rt","amp","mt","climate","change","climatechange","jan","feb","mar","apr","may",
                         "june","july","aug","sept","oct","nov","dec", "say","said")
@@ -66,7 +67,7 @@ saveRDS(original_tf, file = original_tf_file)
 
 # ##alpha=0.1
 run.model.fun1 <- function(k){  ##alpha
-  filename = file.path(model_dir, paste0(k, "_topics_a",alpha,".rda")) ##alpha
+  filename = file.path(model_dir, paste0(k, model_name)) ##alpha
   if (!file.exists(filename)) {
     m <- FitLdaModel(dtm = dtm, k = k, iterations = 500, alpha = alpha) ##alpha
     m$k <- k
@@ -74,6 +75,7 @@ run.model.fun1 <- function(k){  ##alpha
     save(m, file = filename)
   } else {
     print("model file found!")
+    # load(filename)
   }
   m
 }
@@ -89,5 +91,5 @@ g<-ggplot(coherence_mat, aes(x = k, y = coherence)) +
   ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,max(k_list),1)) + ylab("Coherence")
 
-ggsave(file.path(model_dir,coherence_name),plot = g) ##alpha
+ggsave(file.path(model_dir,coherence_name),plot = g,  device = "pdf") ##alpha
 

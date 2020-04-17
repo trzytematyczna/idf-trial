@@ -25,10 +25,14 @@ rds_dir <- paste0("./results/",data_name,"/")
 model_dir <- paste0("./results/",data_name,"/k-",k_list)
 res_dir <- paste0("./results/",data_name,"/k-",k_list,"/")
 
-exp_name<-paste0("k-",k_list,"-alpha-",alpha,"-ngram-",ngram)
-rds_name<-paste0(data_name,"-ngram-",ngram,".Rds")
-dtm_file<-paste0(rds_dir,"dtm-",rds_name)
-original_tf_file <- paste0(rds_dir,"originaltf-",rds_name)
+
+exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
+
+dtm_file<-paste0(rds_dir,"/dtm-",data_name,"-ngram-",ngram,".Rds")
+original_tf_file <- paste0(rds_dir,"/originaltf-",data_name,"-ngram-",ngram,".Rds")
+
+model_name <- paste0("_topics-",exp_name, ".rda")
+
 
 ##################
 if(data_name %like% "twitter"){
@@ -41,7 +45,7 @@ dtm<-readRDS(dtm_file)
 original_tf <- readRDS(original_tf_file)
 
 read.model.fun <- function(k){
-  filename = file.path(model_dir, paste0(k, "_topics_a",alpha,".rda"))
+  filename = file.path(model_dir, paste0(k, model_name))
   if (!file.exists(filename)) {
     print("Nofile!")
   } else {
