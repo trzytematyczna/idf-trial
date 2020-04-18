@@ -12,11 +12,11 @@ k_list<-10
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+data_name<-"twitter-1M"
+data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
 
-rds_dir <- "./results/twitter-2M" #"./test/"
-model_dir<-"./results/twitter-2M" #"./test"
+rds_dir <- "./results/twitter-1M" #"./test/"
+model_dir<-"./results/twitter-1M" #"./test"
 res_dir<-model_dir
 
 # data_name<-"guardian-comments"

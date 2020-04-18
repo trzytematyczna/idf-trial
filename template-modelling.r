@@ -26,8 +26,8 @@ data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
 
 # rds_dir <- paste0("./results/",data_name,"/")
 # model_dir <- paste0("./results/",data_name,"/k-",k_list)
-rds_dir<-paste0("./test/")
-model_dir<-paste0("./test")
+rds_dir<-paste0("./results/twitter-1M")
+model_dir<-paste0("./results/twitter-1M")
 
 exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
