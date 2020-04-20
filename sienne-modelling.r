@@ -11,7 +11,7 @@ library(stringr)
 
 ####selected parameters to check the results####
  # k_list<-10
-k_list <- c(5,10)
+k_list <- c(5:10)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
