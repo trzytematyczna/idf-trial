@@ -6,17 +6,19 @@ library(reshape2)
 library(dplyr)
 library(wordcloud)
 library(tidyr)
+library(ggwordcloud)
+library(gridExtra)
 
 ####selected parameters to check the results####
-k_list<-10
+k_list<-5
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-1M"
-data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/split-1M/twitter-2M-sampled.csv"
 
-rds_dir <- "./results/twitter-1M" #"./test/"
-model_dir<-"./results/twitter-1M" #"./test"
+rds_dir <- "./results/twitter-2M" #"./test/"
+model_dir<-"./results/twitter-2M" #"./test"
 res_dir<-model_dir
 
 # data_name<-"guardian-comments"
@@ -120,16 +122,16 @@ for(i in 1:length(unique(top20.summary$topic))){
 dev.off()
 
 # pdf(paste0(res_dir,"/all-cluster-k-",k_list,"-",exp_name,".pdf"))
-par(mfrow=c(5,2)) # for 1 row, 2 cols
-for(i in 1:length(unique(top20.summary$topic))){  
-  print(i)
-  wordcloud(words = subset(top20.summary, topic == i)$word, 
-            freq = subset(top20.summary, topic == i)$value, min.freq = 1,
-            scale=c(seq(1,7, by=0.7)),
-            max.words=10, random.order=FALSE, rot.per=0.4, 
-            colors=brewer.pal(8, "Dark2"))
-  text(x=-0.2, y=0.1, paste0("Topic ",i))
-}
+# par(mfrow=c(5,2)) # for 1 row, 2 cols
+# for(i in 1:length(unique(top20.summary$topic))){  
+#   print(i)
+#   wordcloud(words = subset(top20.summary, topic == i)$word, 
+#             freq = subset(top20.summary, topic == i)$value, min.freq = 1,
+#             scale=c(seq(1,7, by=0.7)),
+#             max.words=10, random.order=FALSE, rot.per=0.4, 
+#             colors=brewer.pal(8, "Dark2"))
+#   text(x=-0.2, y=0.1, paste0("Topic ",i))
+# }
 # dev.off()
 
 wclist<-list()

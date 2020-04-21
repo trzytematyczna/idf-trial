@@ -1,24 +1,41 @@
-;organization_name;art_nb;comm_nb;comm_below_art;art_commented
-1;iri;531;3966;52816;1653
-2;ipcc;234;4731;22556;1207
-3;intergovernmental panel on climate change;234;179;20930;152
-4;csiro;115;1149;14911;341
-5;extinction rebellion;108;100;4955;52
-6;350.org;83;100;6497;65
-7;union of concerned scientists;44;70;3972;52
-8;green climate fund;35;43;1989;28
-9;global warming policy foundation;24;34;3062;33
-10;united nations framework convention on climate change;22;14;2165;13
-11;natural resources defense council;21;5;1680;5
-12;environmental defense fund;17;20;804;18
-13;climate change in australia;15;16;1520;14
-14;yale program on climate change communication;7;0;600;0
-15;climatic research unit;5;19;400;15
-16;global change research program;5;8;1034;8
-17;commonwealth scientific and industrial research organisation;3;9;70;9
-18;friends of the earth international;3;1;289;1
-19;citizens climate lobby;2;18;0;17
-20;hadley centre for climate prediction and research;0;4;0;4
-21;global atmosphere watch;0;0;0;0
-22;canadian foundation for climate and atmospheric sciences;0;2;0;2
-23;international research institute for climate and society;0;3;0;3
+organization_name,art_nb,comm_nb
+esgp,0,0
+fff,0,7
+gggi,0,0
+iucn,0,30
+unep,0,23
+eea,0,21
+pemsea,0,0
+ipcc,0,3719
+csiro,0,784
+xr,0,116
+350.org,0,59
+ucs,0,44
+gcf,0,42
+gwpf,0,155
+unfccc,0,98
+nrdc,0,10
+edf,0,157
+climate change in australia,0,9
+ypccc,0,0
+cru,0,54
+usgcrp,0,3
+foei,0,0
+ccl,0,17
+hadley centre for climate prediction and research,0,1
+gaw,0,0
+cfcas,0,1
+iri,0,2
+can,0,5
+ci,0,2
+global footprint network,0,4
+lets do it,0,0
+oceana,0,0
+aware,0,0
+greenworld international,0,0
+SocEnv,0,0
+climate reality project,0,1
+yfoee,0,0
+wri,0,11
+wwf,0,51
+greenpeace,0,493

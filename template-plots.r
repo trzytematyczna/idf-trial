@@ -4,16 +4,18 @@ library(textmineR)
 library(dplyr)
 library(data.table)
 library(tidyr)
+library(stringr)
+library(stringi)
 
 
 ####selected parameters to check the results####
-k_list<-10
+k_list<-9
 # k_list <- c(5,10,15)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-# data_name<-"twitter-3M"
-# data_dir<-"./data/twitter/split-3M/xaa.csv"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
@@ -22,9 +24,8 @@ ngram<- 1#ngrams
 # data_dir <- "./data/guardian/full_articles_guardian.csv"
 
 rds_dir <- paste0("./results/",data_name,"/")
-model_dir <- paste0("./results/",data_name,"/k-",k_list)
-res_dir <- paste0("./results/",data_name,"/k-",k_list,"/")
-
+model_dir <- paste0("./results/",data_name,"/")
+res_dir <- paste0("./results/",data_name,"/")
 
 exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 
@@ -36,13 +37,15 @@ model_name <- paste0("_topics-",exp_name, ".rda")
 
 ##################
 if(data_name %like% "twitter"){
-  data <- read.csv2(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"", colClasses = c("factor","character"))#, encoding = "UTF-8")
-  data$id<- 1:nrow(data)
+  data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"", header = TRUE, colClasses = c("character"))#, encoding = "UTF-8")
+  data$from_user_id<-NULL
+  data$from_user_name<-NULL
+  data$from_user_followercount<-NULL
 }else{
   data<- read.csv2(data_dir, stringsAsFactors = FALSE)
 }
-dtm<-readRDS(dtm_file)
-original_tf <- readRDS(original_tf_file)
+# dtm<-readRDS(dtm_file)
+# original_tf <- readRDS(original_tf_file)
 
 read.model.fun <- function(k){
   filename = file.path(model_dir, paste0(k, model_name))
@@ -96,24 +99,34 @@ document_topic <- document_topic %>%
   group_by(document) %>% 
   arrange(desc(value)) %>%
   filter(row_number() ==1)
-
-
-
+# document_topic %>% str_replace("X","")
+# if(data_name %like% "twitter"){
+  document_topic$document<-document_topic$document %>%stri_replace_all_fixed("X","")
+# }
 
 
 sp <- data.frame(model$theta)
 sp$document <-rownames(sp)
 rownames(sp) <- 1:nrow(sp)
 sp <- sp%>%  plyr::rename(c("document"="id"))
+# if(data_name %like% "twitter"){
+  sp$id<-sp$id %>%stri_replace_all_fixed("X","")
+# }
+
 
 if(!is.null(data$date_published)){
-  sum.probab <- merge(sp,(select(data,id,date_published)), by="id")
+  sum.probab<-sp
+  sum.probab<- cbind(sum.probab, date = data$date)
+  # sum.probab <- merge(sp,(select(data,id,date_published)), by="id")
   sum.probab <- sum.probab%>%  plyr::rename(c("date_published"="date"))
   sum.probab$date<-as.numeric(sum.probab$date)
   sum.probab$date<- as.Date(as.POSIXct((sum.probab$date/1000), origin = "1970-01-01"))
 } else{
-  sum.probab <- merge(sp,(select(data,id,date)), by="id")
+  sum.probab<-sp
+  sum.probab<- cbind(sum.probab, date = data$date)
   sum.probab$date<- as.Date(sum.probab$date)
+  # sum.probab <- merge(sp,(select(data,id,date)), by="id")
+  # sum.probab$date<- as.Date(sum.probab$date)
 }
 
 

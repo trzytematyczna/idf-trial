@@ -42,7 +42,7 @@ countArticlesCommented <- function(organization, adata, cdata){
   count_articlesCommentedOrgComments
 }
 
-statsOrganizations<-function(organizations, adata,cdata){
+statsOrganizationsList<-function(organizations, adata,cdata){
   organizations<-tolower(organizations)
   df<-data.frame()
   for (i in 1:length(organizations)){
@@ -58,6 +58,49 @@ statsOrganizations<-function(organizations, adata,cdata){
   df
 }
 
+statsOrganizations<-function(organizations, adata,cdata, which.names=0){
+  
+  organizations$Organization_name<-tolower(organizations$Organization_name)
+  df<-data.frame()
+  
+  if(which.names==1){ #long only
+    
+  } else if(which.names==2){ #short only
+    
+  } else{ #both
+     
+    
+    for(short in unique(organizations$Name)){
+
+      ta<-data.frame()
+      tc<-data.frame()
+      # comm_below_art <- 0 
+      # art_commented <- 0
+      
+      orgs <- organizations[organizations$Name == short,]$Organization_name
+      if(nrow(orgs)>1){
+        
+      }
+      for(i in organizations[organizations$Name == short,]$Organization_name){
+        ta<-rbind(ta,select(adata[adata$text %like% paste0(" ",i, " "), ], id))
+        tc<-rbind(tc,select(cdata[cdata$text %like% paste0(" ",i, " "), ],id))
+        # comm_below_art <- comm_below_art + countCommentsBelow(i,adata,cdata)
+        # art_commented <- art_commented + countArticlesCommented(i,adata,cdata)
+      }
+      
+      ndf<-data.frame(organization_name=short,
+                      art_nb=nrow(unique(ta)),
+                      comm_nb =nrow(unique(tc))
+                      # comm_below_art = comm_below_art,
+                      # art_commented = art_commented
+      )
+      df<-rbind(df,ndf)
+    }
+  }
+  
+  df<-df%>%arrange(desc(art_nb))
+  df
+}
 
 
 

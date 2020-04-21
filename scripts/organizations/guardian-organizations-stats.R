@@ -3,7 +3,7 @@ library(ggplot2)
 library(textmineR)
 library(dplyr)
 library(data.table)
-source("functions-stats.R")
+source("./scripts/organizations/functions-stats.R")
 
 
 ##################data read
@@ -80,33 +80,34 @@ comments.ipcc<-articles.from.ipcc.comments %>%
 wrong_comments<-comments.ipcc[comments.ipcc$date_published>comments.ipcc$date,]###comments to erase
 
 
-org.names<-c("Extinction Rebellion","Citizens Climate Lobby",
-             "CSIRO",
-             "Commonwealth Scientific and Industrial Research Organisation",
-             "Climate Change in Australia","Climatic Research Unit",
-             "Hadley Centre for Climate Prediction and Research",
-             "Union of Concerned Scientists",
-             "Environmental Defense Fund",
-             "Global Change Research Program",
-             "Global Warming Policy Foundation",
-             "350.org",
-             "Yale Program on Climate Change Communication",
-             "IPCC",
-             "Intergovernmental Panel on Climate Change",
-             "Global Atmosphere Watch",
-             "United Nations Framework Convention on Climate Change",
-             "Green Climate Fund",
-             "Natural Resources Defense Council",
-             "Friends of the Earth International",
-             "Canadian Foundation for Climate and Atmospheric Sciences",
-             "IRI",
-             "International Research Institute for Climate and Society")
+# org.names<-c("Extinction Rebellion","Citizens Climate Lobby",
+#              "CSIRO",
+#              "Commonwealth Scientific and Industrial Research Organisation",
+#              "Climate Change in Australia","Climatic Research Unit",
+#              "Hadley Centre for Climate Prediction and Research",
+#              "Union of Concerned Scientists",
+#              "Environmental Defense Fund",
+#              "Global Change Research Program",
+#              "Global Warming Policy Foundation",
+#              "350.org",
+#              "Yale Program on Climate Change Communication",
+#              "IPCC",
+#              "Intergovernmental Panel on Climate Change",
+#              "Global Atmosphere Watch",
+#              "United Nations Framework Convention on Climate Change",
+#              "Green Climate Fund",
+#              "Natural Resources Defense Council",
+#              "Friends of the Earth International",
+#              "Canadian Foundation for Climate and Atmospheric Sciences",
+#              "IRI",
+#              "International Research Institute for Climate and Society")
 
 # org.num.arts<-checkOrganization(org.names, data.articles)
 # org.num.coms<-checkOrganization(org.names, data.comments)
-
+org.names<-read.csv("./data/organizations.csv")
 stats<-statsOrganizations(org.names,data.articles,data.comments)
 stats<-stats%>%arrange(desc(art_nb))
+write.csv(stats, "./plots/ipcc/stats-organizations.csv", row.names = FALSE, quote = FALSE)
 
 
 arts_commented<-getArticlesCommented("ipcc",data.articles,data.comments)

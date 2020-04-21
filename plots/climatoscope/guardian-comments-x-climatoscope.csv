@@ -26,25 +26,27 @@ population growth;1407
 crop;1389
 permafrost;1386
 carbon footprint;1343
-extreme weather;1202
+climate models;1244
+extreme weather;1200
 wind power;1162
 wildlife;1084
 surface temperature;1042
 gas emissions;1017
 acidification;1016
 economic growth;988
-weather events;973
 biodiversity;971
 ecosystem;967
+weather events;947
 precipitation;930
 electricity generation;925
+climate sensitivity;918
 temperature rise;891
 energy sources;853
 deforestation;806
 carbon price;713
-energy policy;710
 satellite data;708
 sustainability;698
+energy policy;693
 erosion;670
 warming trend;662
 ocean acidification;642
@@ -53,13 +55,14 @@ livestock;623
 energy production;621
 carbon cycle;617
 solar energy;605
+climate policy;562
 humidity;553
 ice extent;550
 energy consumption;518
 coral reefs;495
 pollutants;490
-temperature data;489
 food production;488
+temperature data;487
 water vapor;482
 evaporation;480
 heat waves;469
@@ -68,31 +71,33 @@ energy efficiency;448
 ghg emissions;444
 temperature increase;438
 fresh water;436
-natural variability;436
 private sector;431
 insect;423
 natural resources;421
 sea surface;409
 seed;403
+natural variability;402
+climate warming;392
 tropical cyclones;373
 air quality;371
 water supply;368
+temperature change;365
 biofuels;364
 long run;358
-energy system;356
-positive feedback;356
+positive feedback;355
 geoengineering;349
 photosynthesis;346
 solar radiation;344
+change policy;342
 methane emissions;337
 timescales;336
+energy system;333
 carbon budget;325
 irrigation;321
 energy supply;320
 emissions trading;319
 drinking water;318
 carbon taxes;316
-earth system;316
 shale gas;308
 tundra;308
 woodland;306
@@ -109,7 +114,6 @@ energy demand;265
 coastal areas;263
 crop yields;262
 stratosphere;259
-extreme events;247
 ice cover;247
 energy security;245
 pollen;241
@@ -119,6 +123,7 @@ storm surge;235
 public opinion;234
 land area;230
 human health;226
+extreme events;223
 contamination;215
 rainfall events;214
 air temperature;212
@@ -129,16 +134,18 @@ water quality;204
 life cycle;203
 predators;202
 ocean surface;199
+earth system;196
 energy balance;191
 economic development;188
 twentieth century;184
-warm periods;184
+warm periods;183
 carbon sequestration;182
 invasive species;182
 food security;179
 carbon sink;178
 salinity;175
 high temperature;173
+climate data;172
 rural areas;168
 biochar;163
 plant growth;162
@@ -152,16 +159,18 @@ gene;155
 microbes;155
 water resources;154
 mass balance;153
+climate variability;151
 emission reduction;151
 model projections;150
 cloud cover;149
 snow cover;148
 nitrous oxide;147
 plankton;145
-environmental policy;143
 atmospheric temperature;141
+environmental policy;141
 sustainable development;141
 ocean temperature;140
+past climate;138
 extreme heat;134
 environmental degradation;133
 shoreline;133
@@ -174,7 +183,7 @@ land surface;124
 temperature anomalies;124
 high latitudes;123
 surface water;122
-water temperature;120
+water temperature;118
 aridity;115
 endangered species;114
 feedstock;114
@@ -183,31 +192,32 @@ storage capacity;108
 insecurity;107
 energy budget;105
 supply chain;105
-warming effects;102
+regional climate;104
 negative effects;101
 risk management;101
 water table;101
 temperature gradient;100
+warming effects;100
 decision makers;99
-weather stations;98
+weather stations;97
 organic matter;92
 food crops;89
 land management;89
 soil carbon;89
-temperature trends;89
 power system;88
 water level;88
 river systems;87
 precipitation events;86
-temperature range;86
+temperature trends;86
+temperature range;85
 canopy;84
 larvae;84
 warmer temperatures;83
 carbon source;81
 soil moisture;81
-warming potential;81
 energy saving;80
 native species;80
+warming potential;80
 health effects;79
 plant species;78
 soil erosion;78
@@ -219,6 +229,7 @@ local level;71
 temperature variability;70
 ozone depletion;69
 heat flux;67
+environmental change;66
 forest management;66
 health risks;63
 snowmelt;63
@@ -226,6 +237,7 @@ observational data;62
 health impacts;61
 maximum temperature;61
 water cycle;61
+climate response;60
 coastal regions;60
 probability distribution;60
 relative humidity;60
@@ -241,6 +253,7 @@ crop production;54
 water scarcity;54
 cyanobacteria;53
 watershed;53
+climate projections;52
 heat stress;51
 support system;51
 bioenergy;50
@@ -254,6 +267,7 @@ ecosystem services;47
 environmental benefits;47
 nitrate;47
 observed data;46
+climate risks;45
 food insecurity;45
 warming scenario;45
 atmospheric circulation;44
@@ -262,8 +276,9 @@ hydrological cycle;43
 low temperature;43
 mangrove forests;43
 ambient temperature;42
+climate predictions;42
 continental shelf;42
-soil water;42
+soil water;41
 water sources;41
 river water;40
 bird species;39
@@ -271,14 +286,15 @@ forest trees;39
 marine ecosystems;39
 carbon markets;38
 fish species;38
+change risks;37
 coastal communities;37
 protected areas;37
 biomes;36
 colonization;36
-environmental sustainability;36
 marine environment;36
 agricultural sector;35
 arid regions;35
+environmental sustainability;35
 soil fertility;34
 water consumption;34
 data series;32
@@ -286,13 +302,13 @@ low latitudes;32
 management practices;32
 mitigation strategies;31
 organic carbon;31
-weather data;31
 higher altitudes;29
 tree growth;29
 air pollutants;28
 cold temperatures;28
 emission scenarios;28
 reef fish;28
+weather data;28
 food system;27
 marine species;27
 mitigation measures;27
@@ -307,7 +323,6 @@ primary production;25
 temperature variation;25
 agricultural areas;24
 agricultural soils;24
-interannual variability;24
 livestock production;24
 storm events;24
 wheat production;24
@@ -318,6 +333,7 @@ small islands;23
 sorghum;23
 water security;23
 biodiversity conservation;22
+climate information;22
 microorganisms;22
 salt marsh;22
 seasonal cycle;22
@@ -329,21 +345,22 @@ laboratory experiments;21
 water conservation;21
 water depth;21
 water loss;21
-circulation models;20
 coral species;20
 forest carbon;20
 phosphorus;20
 radiocarbon;20
 river basin;20
 urban environment;20
-biomass carbon;19
+circulation models;19
+interannual variability;19
 population dynamics;19
 risk analysis;19
-risk factors;19
+biomass carbon;18
 biomass production;18
 forest land;18
 local scale;18
 resource management;18
+risk factors;18
 survival rates;18
 water footprint;18
 crop growth;17
@@ -356,13 +373,13 @@ surface energy;17
 dry years;16
 evapotranspiration;16
 focus groups;16
-temperature sensitivity;16
 water content;16
 wave height;16
 biogeochemical cycles;15
 moisture content;15
 reflectance;15
 soil organic;15
+climate scenarios;14
 genetic diversity;14
 lake water;14
 marine organisms;14
@@ -372,20 +389,22 @@ statistical models;14
 stratospheric ozone;14
 surface albedo;14
 yield increases;14
+change scenarios;13
 environmental performance;13
 forest area;13
 impact assessment;13
 land cover;13
 numerical model;13
 rice production;13
-seasonal temperature;13
 spatial resolution;13
 species diversity;13
+temperature sensitivity;13
 water masses;13
 early warning;12
 leaf litter;12
 pollinator;12
 return period;12
+seasonal temperature;12
 temperature conditions;12
 zooplankton;12
 endemic species;11
@@ -400,12 +419,12 @@ production systems;10
 water balance;10
 water requirements;10
 chlorophyll;9
+climate simulations;9
 concentration pathways;9
 drought severity;9
 fisheries management;9
 forest degradation;9
 grain yield;9
-information system;9
 large uncertainties;9
 microbial activity;9
 plant biomass;9
@@ -414,26 +433,27 @@ precipitation extremes;9
 precipitation increase;9
 reef ecosystems;9
 resource availability;9
-temperature effects;9
 annual precipitation;8
 crop productivity;8
 dinoflagellate;8
 fecundity;8
+information system;8
 management decisions;8
 population trends;8
 species distribution;8
 suitable habitat;8
 summer monsoon;8
+temperature effects;8
 terrestrial ecosystems;8
 vegetation growth;8
 adaptive capacity;7
 climatic variables;7
-decision support;7
 management policies;7
 peak flows;7
 sustainable management;7
 thermal comfort;7
 carbon stocks;6
+decision support;6
 downscaling;6
 drought risk;6
 ecosystem carbon;6
@@ -475,14 +495,18 @@ soil samples;5
 vapor pressure;5
 vascular plants;5
 yield potential;5
+change drivers;4
+climate uncertainty;4
 coastal ecosystems;4
 coastal wetlands;4
+community change;4
 crop management;4
 disaster risk;4
 emission factors;4
 environmental data;4
 field conditions;4
 forest biomass;4
+forest change;4
 forest productivity;4
 genetic variation;4
 geographic distribution;4
@@ -495,7 +519,6 @@ species composition;4
 summer precipitation;4
 temperature regimes;4
 water potential;4
-weather variables;4
 wind stress;4
 adaptation options;3
 antioxidant;3
@@ -521,6 +544,7 @@ sediment transport;3
 species abundance;3
 trophic levels;3
 water budget;3
+weather variables;3
 wheat yield;3
 yield losses;3
 adaptation policy;2
@@ -553,7 +577,6 @@ water deficit;2
 abiotic factors;1
 biotic interactions;1
 coastal zone;1
-crop models;1
 environmental drivers;1
 environmental variability;1
 fish communities;1
