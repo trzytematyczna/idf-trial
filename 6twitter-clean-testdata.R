@@ -3,13 +3,13 @@ library(data.table)
 library(stringr)
 
 
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/"
+data_name<-"twitter-500K"
+data_dir<-"./data/twitter/split-500K/"
 
 data.files <- list.files(data_dir)
 nfiles<-length(data.files)
 learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
-
+res_dir<-"./data/twitter/test-data-500K/"
 
 # res<-data.frame()
 for (i in data.files){
@@ -37,7 +37,7 @@ for (i in data.files){
   filename<-paste0(str_replace(i,".csv",""),"-testsample.csv")
   # format(head(learning.data$id, n=50), digits=22)
   # df %>% fwrite(paste0("./data/twitter/test-data-2M/",filename), quote = FALSE, row.names = FALSE, sep=",", qmethod = "double")
-  df%>%write.csv(paste0("./data/twitter/test-data-2M/",filename), quote = TRUE, row.names = FALSE, sep=",")
+  df%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
   # res <- rbind(res,new.sample)
 }
 
