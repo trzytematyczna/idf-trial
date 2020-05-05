@@ -8,7 +8,7 @@
 data/**
 
 unused/**
-
+results/twitter-trained/**
 # Session Data files
 .RData
 
