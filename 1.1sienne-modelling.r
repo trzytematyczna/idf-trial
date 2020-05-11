@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 library(quanteda)
 library(topicmodels)
 library(ggplot2)
@@ -9,14 +10,17 @@ library(data.table)
 library(stringr)
 
 
+options <- commandArgs(trailingOnly = TRUE)
+filename<-paste0("file_",options[1],"-timeline")
 ####selected parameters to check the results####
  # k_list<-10
-k_list <- c(5:10)
+k_list <- c(9:10)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+data_name<-"twitter-timeline-2M"
+#data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+data_dir<-paste0("./data/twitter/timeline-2M/",filename,".csv")
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
@@ -29,11 +33,11 @@ data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 rds_dir<-paste0("./test-2M/")
 model_dir<-paste0("./test-2M/")
 
-exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
+exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram,"-",filename)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
 
-dtm_file<-paste0(rds_dir,"/dtm-",data_name,"-ngram-",ngram,".Rds")
-original_tf_file <- paste0(rds_dir,"/originaltf-",data_name,"-ngram-",ngram,".Rds")
+dtm_file<-paste0(rds_dir,"/dtm-",data_name,"-ngram-",ngram,"-",filename,".Rds")
+original_tf_file <- paste0(rds_dir,"/originaltf-",data_name,"-ngram-",ngram,"-",filename,".Rds")
 
 model_name <- paste0("_topics-",exp_name, ".rda")
 

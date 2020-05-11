@@ -73,7 +73,9 @@ gen<-merge(gen,global.means, by="topic")
 generality<-gen%>%
   mutate(diff=(1/doc.nb)*(1/gtp)*(mult-(p*log2(doc.nb*gtp))))
 generality<-generality%>%
-  mutate(gen.val=diff/doc.nb)
+  mutate(gen.val=-diff/log2(doc.nb))
+
+generality%>% select(topic,gen.val)%>%write.csv("./results/twitter-trained/generality-topics.csv",row.names = FALSE, quote = FALSE)
 
 topic.labels<-read.csv("./results/twitter-trained/k-9-topic-words.csv")
 
@@ -90,7 +92,7 @@ fin <- global.means %>%
   mutate(topic=factor(topic,levels = 1:nrow(fin),  labels=topic.labels$label))
 
 
-g<-ggplot(fin, aes(x=reorder(topic,value), y=value))+
+g<-ggplot(fin, aes(x=reorder(topic,gtp), y=gtp))+
   geom_col( ) +
   theme(axis.text.x = element_text(angle = 90))+
   ggtitle("Mean probability of each topic in tweets")+
