@@ -3,13 +3,13 @@ library(data.table)
 library(stringr)
 
 
-data_name<-"twitter-1M"
-data_dir<-"./data/twitter/split-1M/"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/split-2M/"
 
 data.files <- list.files(data_dir)
 nfiles<-length(data.files)
 # learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
-res_dir<-"./data/twitter/timeline-1M/"
+res_dir<-"./data/twitter/timeline-2M/"
 
 # res<-data.frame()
 for (i in data.files){

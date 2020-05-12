@@ -61,7 +61,7 @@ newdtm <- CreateDtm(data$text,
 
 assignments <- predict(model, newdtm,
                        method = "gibbs", 
-                       iterations = 1000, #200
-                       burnin = 100, #180
+                       iterations = 500, #200
+                       burnin = 75, #180
                        cpus = 4)
 assignments %>% write.csv(assignment_file, row.names = TRUE, quote = FALSE)
