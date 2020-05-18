@@ -2,6 +2,7 @@
 .Rhistory
 .Rapp.history
 
+*.tar.gz
 *.rda
 *.Rds
 *.rds
