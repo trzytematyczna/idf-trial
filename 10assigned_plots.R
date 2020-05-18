@@ -41,6 +41,8 @@ res_dir<-"./results/twitter-trained/"
     print(paste0("after",nrow(df)))
     
   }
+  
+
   probs<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
     mutate(month=format(date,'%y-%V'))%>%
     gather(topic, probability, t_1:t_9) %>% ##topic_number k_list

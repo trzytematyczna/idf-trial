@@ -14,6 +14,7 @@ file.means<-data.frame()
 file.sums<-data.frame()
 file.mults<-data.frame()
 doc.nb<-0
+buckets<-data.frame()
 for (i in data.files){
   print(i)
   df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
@@ -32,6 +33,18 @@ for (i in data.files){
   file.mults<-bind_rows(file.mults,mults)
   
   doc.nb<-doc.nb+nrow(df)
+  
+  
+  
+  cols<-c("t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
+  for(i in  seq(1,0.5,by=-0.1)){
+    lo<-i-0.1
+    up<-i
+    bp<-df %>%  filter_at(cols, any_vars(between(.,lo,up)))
+    if(lo==0.4) lo<-0
+    buckets<-rbind(buckets, c(nrow(bp),lo,up))
+  }
+  
 }
 
 global.means <- file.means %>% colMeans()
@@ -100,6 +113,23 @@ g<-ggplot(fin, aes(x=reorder(topic,gtp), y=gtp))+
   xlab("Topics")+
   ylab("Global probability of topic")
 ggsave(paste0(res_dir, "mean-probability-k9-all-tweets.pdf"))
+
+
+#########################
+colnames(buckets)<-c("nb","lower","upper")
+buckets<-buckets%>%group_by(lower)%>%summarise(total=sum(nb))%>%arrange(lower)
+buckets<-cbind(buckets,seq(1:6))
+colnames(buckets)<-c("lower","total","buck")
+buckets<-buckets%>%mutate(buck=factor(buck,levels = 1:6,  labels=c("<0.5","0.6-0.5","0.7-0.6","0.8-0.7","0.9-0.8",">0.9")))
+
+g<-ggplot(buckets, aes(y=total, x=buck))+
+  geom_bar(stat="identity",position="stack")+
+  # theme(axis.text.x = element_text(angle = 90))+
+  xlab("probability value")+
+  ylab("nb tweets")+ 
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+ggsave(paste0(res_dir,"k9-prob-buckets.pdf"))
+
 
 
 # file.info<-data.frame()
