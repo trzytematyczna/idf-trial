@@ -17,7 +17,7 @@ topics.labs.fun<-function(labfilename){
     group_by(topic) %>%
     summarize(label=paste(s,topic, collapse = ","))
 }
-equals.yes<-F
+equals.yes<-T
 data_dir<-"./results/twitter-trained/assign-joined/"
 
 options <- commandArgs(trailingOnly = TRUE)
@@ -25,7 +25,7 @@ m<-options[1]
 filename<-paste0("assign-",m,".csv")
 
 # learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
-res_dir<-"./results/twitter-trained/"
+res_dir<-"./results/twitter-trained/week-probs-2/"
 # data.files<-data.files[1:2]
 # i<-data.files[1]
   df <- read.csv(paste0(data_dir,filename), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
@@ -33,13 +33,17 @@ res_dir<-"./results/twitter-trained/"
   colnames(df)<-c("id","date","from_user_id","from_user_name","from_user_followercount","text","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
   
   if(equals.yes==TRUE){
-    equals <- df[df[,7:15]== 0.111111111111111,]
-    write.table(equals, paste0(res_dir, "equals.csv"), sep = ",", append = T)
-  
-    print(paste0("before ", nrow(df)))
+    #equals <- df[df[,7:15]== 0.111111111111111,]
+    cols<-c("t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
+    equals <- df %>%  filter_at(cols, all_vars(.==0.111111111111111))
+    equals <- equals[complete.cases(equals),]
+    write.table(equals, paste0(res_dir, "equals.csv"), sep = ",", append = T, col.names = F,row.names = F)
+
+    bf<-length(df$id)
     df<-df[!df$id %in% equals$id,]
-    print(paste0("after",nrow(df)))
-    
+    af<-length(df$id)
+    b<-data.frame(m, bf,af,af/bf)
+    write.table(b, paste0(res_dir,"df-equals-nb.csv"),append = T, sep=",", quote = F, row.names = F, col.names = F)
   }
   
 
@@ -49,7 +53,7 @@ res_dir<-"./results/twitter-trained/"
     tidyr::separate(topic, into =c("t","topic")) %>%
     select(-t)%>%
     select(-id,-date)
-  
+    
   
   grouped.sp <- probs%>%
     group_by(month,topic) %>%
@@ -67,6 +71,7 @@ res_dir<-"./results/twitter-trained/"
   global.means <- global.means %>% mutate(topic=factor(topic,levels = 1:9,labels=topic.labels$label))
   col <- c("#CC6666", "#9999CC", "#66CC99")
   
+  grouped.sp%>%write.csv2(paste0(res_dir,"k9-week-probs",m,".csv"))
   # g<-ggplot(grouped.glob.top, aes(x=month,y=sum_probability))+
   g<-ggplot(grouped.sp, aes(x=month,y=sum_probability))+
     geom_bar(stat="identity",position="stack")+
