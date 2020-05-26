@@ -8,7 +8,7 @@ data_dir<-"./data/twitter/split-500K/"
 
 data.files <- list.files(data_dir)
 nfiles<-length(data.files)
-learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+# learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 res_dir<-"./data/twitter/test-data-500K/"
 
 # res<-data.frame()
@@ -18,8 +18,8 @@ for (i in data.files){
   df<-df[!df$text=="",] #empty tweets
   
   #learning data used for LDA
-  learning.data <- read.csv(paste0(learning.data.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8")
-  df<-df[!df$id %in% learning.data$id,]
+  # learning.data <- read.csv(paste0(learning.data.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8")
+  # df<-df[!df$id %in% learning.data$id,]
 
   #weatherbots
   df<-df[!df$text %like% "Climate Report: High: ",] #61770

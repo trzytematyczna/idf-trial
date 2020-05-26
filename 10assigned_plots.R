@@ -7,6 +7,9 @@ library(tidyr)
 library(ggplot2)
 # data_name<-"twitter-2M"
 
+equals.yes<-F
+with.retweets<-F
+
 topics.labs.fun<-function(labfilename){
   topic.labels<-read.csv(labfilename)
   topic.labels<-topic.labels%>% 
@@ -17,7 +20,6 @@ topics.labs.fun<-function(labfilename){
     group_by(topic) %>%
     summarize(label=paste(s,topic, collapse = ","))
 }
-equals.yes<-T
 data_dir<-"./results/twitter-trained/assign-joined/"
 
 options <- commandArgs(trailingOnly = TRUE)
@@ -25,7 +27,7 @@ m<-options[1]
 filename<-paste0("assign-",m,".csv")
 
 # learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
-res_dir<-"./results/twitter-trained/week-probs-2/"
+res_dir<-"./results/twitter-trained/week-probs-retweets/"
 # data.files<-data.files[1:2]
 # i<-data.files[1]
   df <- read.csv(paste0(data_dir,filename), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
@@ -46,18 +48,34 @@ res_dir<-"./results/twitter-trained/week-probs-2/"
     write.table(b, paste0(res_dir,"df-equals-nb.csv"),append = T, sep=",", quote = F, row.names = F, col.names = F)
   }
   
-
-  probs<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
-    mutate(month=format(date,'%y-%V'))%>%
-    gather(topic, probability, t_1:t_9) %>% ##topic_number k_list
-    tidyr::separate(topic, into =c("t","topic")) %>%
-    select(-t)%>%
-    select(-id,-date)
-    
   
-  grouped.sp <- probs%>%
-    group_by(month,topic) %>%
-    summarise(sum_probability=mean(probability))
+  if(with.retweets==T){
+    probs<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
+      mutate(month=format(date,'%y-%V'))%>%
+      pivot_longer(names_to="topic", values_to="probability", c(t_1:t_9)) %>% ##topic_number k_list
+      tidyr::separate(topic, into =c("t","topic")) %>%
+      select(-t)%>%
+      select(-id,-date)
+    
+    probs <- probs %>%
+      mutate(nbtweet=retweet_number+1) %>% ### TBD: HERE name of retweet column!! 
+      mutate(mprob=probability*nbtweet)
+    
+    grouped.sp <- probs %>%
+      group_by(month,topic) %>%
+      summarise(sum_probability=sum(mprob)/sum(nbtweet))
+
+  } else{
+    probs<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
+      mutate(month=format(date,'%y-%V'))%>%
+      gather(topic, probability, t_1:t_9) %>% ##topic_number k_list
+      tidyr::separate(topic, into =c("t","topic")) %>%
+      select(-t)%>%
+      select(-id,-date)
+    grouped.sp <- probs%>%
+      group_by(month,topic) %>%
+      summarise(sum_probability=mean(probability))
+  }
   
   topic.labels<-topics.labs.fun("./results/twitter-trained/k-9-topic-words.csv")
   global.means<-read.csv2("./results/twitter-trained/k9-global-means.csv")
@@ -85,4 +103,25 @@ res_dir<-"./results/twitter-trained/week-probs-2/"
     # scale_x_discrete(breaks = xbreaks)+
     facet_wrap(.~topic, ncol=2)
   ggsave(paste0(res_dir,"k9-week-probs",m,".pdf"))
+  
+  tweets.entropy<-df%>% 
+    select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
+    mutate(tentropy=-rowSums(df[,7:15]*log2(df[,7:15]))/9)
+  
+  
+  
+  entropy.plot<-tweets.entropy%>%select(id,date,tentropy)
+  # hist(entropy.plot$tentropy, density = 100, ylim = range(1,2000))
+  
+  g<-qplot(tentropy, data=tweets.entropy, geom="histogram") +
+    xlab("tweet entropy")+
+    ylab("#")+
+    ylim(0,1500)+
+    theme(axis.text.x = element_text(angle = 90))+
+    scale_x_continuous(n.breaks=30)
+  g
+
+  ggsave(plot = g,"./results/twitter-trained/tweets_entropy-histogram.pdf", device = "pdf")
+  x<-entropy.plot$tentropy
+  hist.scott(x, prob = TRUE, xlab = deparse(substitute(x)))
   
