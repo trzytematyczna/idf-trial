@@ -9,18 +9,19 @@ library(stringi)
 
 
 ####selected parameters to check the results####
-k_list<-9
+# k_list<-9
 # k_list <- c(5,10,15)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+# data_name<-"twitter-2M"
+# data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
 
-# data_name <- "guardian-articles"
+k_list<-10
+data_name <- "guardian-articles"
 # data_dir <- "./data/guardian/full_articles_guardian.csv"
 
 rds_dir <- paste0("./results/",data_name,"/")

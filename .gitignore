@@ -8,6 +8,9 @@
 *.rds
 data/**
 
+results/twitter-2M/twitter-term-topic-probab.csv
+results/guardian-articles/guardian-articless-term-topic-probab.csv
+
 unused/**
 results/twitter-trained/**
 # Session Data files
