@@ -5,16 +5,18 @@ library(stringr)
 library(DescTools)
 library(tidyr)
 library(ggplot2)
+library(lubridate)
+
 # data_name<-"twitter-2M"
 
 equals.yes<-F
 with.retweets<-T
 do.entropy<-F
-week.yes<-T
+week.yes<-F
 month.yes<-F
 
 if(week.yes == TRUE){
-  divide.by <- '%y-%U'
+  divide.by <- '%y-%V'
   xlabel<-'week'
 }else if(month.yes == TRUE){
   divide.by <- '%y-%m'
@@ -54,7 +56,8 @@ res_dir<-"./results/twitter-trained/asd/"
 # data.files<-data.files[1:2]
 # i<-data.files[1]
   df <- read.csv(paste0(data_dir,filename), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
-  df$date<-as.Date(df$date)
+  # df$date<-as.Date(df$date)
+  df$date<-as_date(df$date)
   colnames(df)<-c("id","date","retweetcount","from_user_id","from_user_name","from_user_followercount","text","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
   
   if(equals.yes==TRUE){

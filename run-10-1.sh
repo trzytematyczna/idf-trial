@@ -3,5 +3,5 @@
 for i in {1..1}
 do
   echo "Number: $i"
-  Rscript --vanilla --verbose 10assigned_plots.R $i
+  Rscript --vanilla --verbose 10.1-assigned-days.R $i
 done
