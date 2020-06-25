@@ -7,16 +7,17 @@ library(dplyr)
 library(tidyr)
 library(data.table)
 library(stringr)
+library(readr)
 
 
 ####selected parameters to check the results####
- # k_list<-10
-k_list <- c(5,10)
+ k_list<-9
+# k_list <- c(5,10)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-1M"
-data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
@@ -26,8 +27,8 @@ data_dir<-"./data/twitter/split-1M/twitter-1M-sampled.csv"
 
 # rds_dir <- paste0("./results/",data_name,"/")
 # model_dir <- paste0("./results/",data_name,"/k-",k_list)
-rds_dir<-paste0("./results/twitter-1M")
-model_dir<-paste0("./results/twitter-1M")
+rds_dir<-paste0("./results/twitter-2M")
+model_dir<-paste0("./results/twitter-2M")
 
 exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
@@ -43,21 +44,20 @@ custom.stopwords <- c("rt","amp","mt","climate","change","climatechange","jan","
   
   
 if(data_name %like% "twitter"){
-  data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"",  header = TRUE)#colClasses = c("factor","character"))#, encoding = "UTF-8")
-  # data$id<- 1:nrow(data)
+  # data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"",  header = TRUE)#colClasses = c("factor","character"))#, encoding = "UTF-8")
+  data<-read_csv(data_dir, col_types = cols (id = col_character()))
   data$date<-NULL
   data$from_user_id<-NULL
   data$from_user_name<-NULL
   data$from_user_followercount<-NULL
 }else{
-  data<- read.csv2(data_dir, stringsAsFactors = FALSE)
+  data<-read_csv2(data_dir, col_types = cols (id = col_character()))
+  
+  # data<- read.csv2(data_dir, stringsAsFactors = FALSE)
 }
 
 dtm <- CreateDtm(data$text, 
                    doc_names = data$id, 
-                   # remove_punctuation = TRUE,
-                   # remove_numbers = TRUE,
-                   # lower = TRUE,
                    stopword_vec = c(stopwords::stopwords("en"), stopwords::stopwords(source = "smart"), custom.stopwords),
                    ngram_window = c(1, ngram))
 original_tf <- TermDocFreq(dtm = dtm)

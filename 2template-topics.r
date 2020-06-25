@@ -8,14 +8,15 @@ library(wordcloud)
 library(tidyr)
 library(ggwordcloud)
 library(gridExtra)
+library(readr)
 
 ####selected parameters to check the results####
-k_list<-5
+k_list<-9
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
 data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-1M/twitter-2M-sampled.csv"
+# data_dir<-"./data/twitter/split-1M/twitter-2M-sampled.csv"
 
 rds_dir <- "./results/twitter-2M" #"./test/"
 model_dir<-"./results/twitter-2M" #"./test"
@@ -74,6 +75,7 @@ terms.summary <- terms.summary %>%
   group_by(topic) %>% 
   arrange(desc(value))
 
+terms.summary %>% write_csv("./results/twitter-2M/twitter-term-topic-probab.csv")
 
 # top20.summary -> word +topic + probability 
 top20.summary <- terms.summary %>% group_by(topic) %>% top_n(20)
@@ -121,18 +123,6 @@ for(i in 1:length(unique(top20.summary$topic))){
 
 dev.off()
 
-# pdf(paste0(res_dir,"/all-cluster-k-",k_list,"-",exp_name,".pdf"))
-# par(mfrow=c(5,2)) # for 1 row, 2 cols
-# for(i in 1:length(unique(top20.summary$topic))){  
-#   print(i)
-#   wordcloud(words = subset(top20.summary, topic == i)$word, 
-#             freq = subset(top20.summary, topic == i)$value, min.freq = 1,
-#             scale=c(seq(1,7, by=0.7)),
-#             max.words=10, random.order=FALSE, rot.per=0.4, 
-#             colors=brewer.pal(8, "Dark2"))
-#   text(x=-0.2, y=0.1, paste0("Topic ",i))
-# }
-# dev.off()
 
 wclist<-list()
 for(i in 1:length(unique(top20.summary$topic))){  
@@ -149,15 +139,3 @@ for(i in 1:length(unique(top20.summary$topic))){
 }
 wcall<-grid.arrange(grobs=wclist, top=exp_name, ncol=2)
 ggsave(file=paste0(res_dir,"/all-cluster-k-",k_list,"-",exp_name,".pdf"), wcall, device="pdf")  
-  
-
-# tops<-top20.summary%>%mutate(topic=factor(topic,levels = 1:10))
-# 
-# g<-ggplot(tops,
-#   aes(label = word, size = value)) +
-#   geom_text_wordcloud_area() +
-#   # scale_size_area(max_size = ) +
-#   theme_minimal() +
-#   facet_wrap(~topic)
-# g
-

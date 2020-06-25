@@ -1,6 +1,7 @@
 library(dplyr)
 library(data.table)
 library(stringr)
+library(readr)
 
 
 data_name<-"twitter-500K"
@@ -14,7 +15,9 @@ res_dir<-"./data/twitter/test-data-500K/"
 # res<-data.frame()
 for (i in data.files){
   print(i)
-  df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  # df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  df<-read_csv(paste0(data_dir,i), col_types = cols (id = col_character()))
+  
   df<-df[!df$text=="",] #empty tweets
   
   #learning data used for LDA
@@ -37,7 +40,8 @@ for (i in data.files){
   filename<-paste0(str_replace(i,".csv",""),"-testsample.csv")
   # format(head(learning.data$id, n=50), digits=22)
   # df %>% fwrite(paste0("./data/twitter/test-data-2M/",filename), quote = FALSE, row.names = FALSE, sep=",", qmethod = "double")
-  df%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
+  # df%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
+  df%>%write_csv(paste0(res_dir,filename))
   # res <- rbind(res,new.sample)
 }
 

@@ -2,6 +2,7 @@
 library(textmineR)
 library(dplyr)
 library(data.table)
+library(readr)
 
 options <- commandArgs(trailingOnly = TRUE)
 filename<-paste0("file_",options[1],"-testsample")
@@ -20,20 +21,22 @@ data_dir<-paste0("./data/twitter/test-data-500K/",filename,".csv")
 assignment_file<- paste0(res_dir,"assignment-",filename,".csv")
 
 exp_name <- "twitter-2M-alpha-0.1-ngram-1"
-model.file <- paste0("./results/twitter-2M/",k_list,"_topics-",exp_name,".rda")
+model.file <- paste0("./results/",k_list,"_topics-",exp_name,".rda")
 
 
 custom.stopwords <- c("rt","amp","mt","climate","change","climatechange","jan","feb","mar","apr","may",
                       "june","july","aug","sept","oct","nov","dec", "say","said")
 
 if(data_name %like% "twitter"){
-  data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"",  header = TRUE)#colClasses = c("factor","character"))#, encoding = "UTF-8")
+  # data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"",  header = TRUE)#colClasses = c("factor","character"))#, encoding = "UTF-8")
+  data<-read_csv(data_dir, col_types = cols (id = col_character()))
   data$date<-NULL
   data$from_user_id<-NULL
   data$from_user_name<-NULL
   data$from_user_followercount<-NULL
 }else{
-  data<- read.csv2(data_dir, stringsAsFactors = FALSE)
+  # data<- read.csv2(data_dir, stringsAsFactors = FALSE)
+  data<-read_csv2(data_dir, col_types = cols (id = col_character()))
 }
 
 read.model.fun <- function(k){
@@ -64,4 +67,5 @@ assignments <- predict(model, newdtm,
                        iterations = 500, #200
                        burnin = 75, #180
                        cpus = 4)
-assignments %>% write.csv(assignment_file, row.names = TRUE, quote = FALSE)
+# assignments %>% write.csv(assignment_file, row.names = TRUE, quote = FALSE)
+assignments %>% write_csv(assignment_file)

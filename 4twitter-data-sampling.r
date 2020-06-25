@@ -1,6 +1,6 @@
 library(dplyr)
 library(data.table)
-
+library(readr)
 
 max.data<-2000000
 
@@ -16,8 +16,9 @@ lines.per.file<-round(max.data/nfiles)
 sampled<-data.frame()
 for (i in data.files){
   print(i)
-  df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8")
+  # df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8")
                   #colClasses = c("factor","character"))
+  df<-read_csv(paste0(data_dir,i), col_types = cols (id = col_character()))
   df<-df[!is.na(df$text),] #empty tweets
   # df<-df[!df$from_user_name %like% "iembot_",]
   # df<-df[!df$from_user_name %like% "WxBotUSA",]
@@ -42,7 +43,8 @@ for (i in data.files){
 }
 
 # sampled %>% write.table(sampled.file, quote = TRUE, row.names = FALSE, sep=",")
-sampled %>% arrange(date)%>% fwrite(sampled.file, quote = TRUE, row.names = FALSE, sep=",", qmethod = "double")
+sampled %>% arrange(date)%>% write_csv(sampled.file)
+# sampled %>% arrange(date)%>% fwrite(sampled.file, quote = TRUE, row.names = FALSE, sep=",", qmethod = "double")
 
 #Climate: Hi: 46 Lo: 27 Precip: 0.0 Snow: 0.0
 #Climate Report: High: 34 Low: 17 Precip: 0.03 Snow: 0.2"

@@ -6,22 +6,23 @@ library(data.table)
 library(tidyr)
 library(stringr)
 library(stringi)
+library(readr)
 
-
+ipcc-analyse<-F 
 ####selected parameters to check the results####
-# k_list<-9
+k_list<-9
 # k_list <- c(5,10,15)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-# data_name<-"twitter-2M"
-# data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+data_name<-"twitter-2M"
+data_dir<-"./data/twitter/texts-preformat-no-retweets/split-2M/twitter-2M-sampled.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
 
-k_list<-10
-data_name <- "guardian-articles"
+# k_list<-10
+# data_name <- "guardian-articles"
 # data_dir <- "./data/guardian/full_articles_guardian.csv"
 
 rds_dir <- paste0("./results/",data_name,"/")
@@ -38,12 +39,18 @@ model_name <- paste0("_topics-",exp_name, ".rda")
 
 ##################
 if(data_name %like% "twitter"){
-  data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"", header = TRUE, colClasses = c("character"))#, encoding = "UTF-8")
+  # data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"", header = TRUE, colClasses = c("character"))#, encoding = "UTF-8")
+  data<-read_csv(data_dir, col_types = cols (id = col_character()))
+  
   data$from_user_id<-NULL
   data$from_user_name<-NULL
   data$from_user_followercount<-NULL
 }else{
-  data<- read.csv2(data_dir, stringsAsFactors = FALSE)
+  data<-read_csv2(data_dir, col_types = cols (id = col_character()))
+  data$date_published<-as.numeric(data$date_published)
+  data$date_published<- as.Date(as.POSIXct((data$date_published/1000), origin = "1970-01-01"))
+  
+  # data<- read.csv2(data_dir, stringsAsFactors = FALSE)
 }
 # dtm<-readRDS(dtm_file)
 # original_tf <- readRDS(original_tf_file)
@@ -161,7 +168,7 @@ ggsave(paste0(res_dir,data_name,"-",exp_name,"-global-avg-probabilities.pdf"))
 
 
 grouped.sp <- sum.probab %>%
-  mutate(month=format(date,'%y-%V')) %>%
+  mutate(month=format(date,'%y-%U')) %>%
   gather(topic, probability, t_1:!!sym(tmax)) %>% ##topic_number k_list
   tidyr::separate(topic, into =c("t","topic")) %>%
   select(-t)%>%
@@ -224,82 +231,82 @@ g
 ggsave(paste0(res_dir,data_name,"-",exp_name,"-all-topics-week-probabilities.pdf"))
 
 
-
-source("functions-stats.R")
-data$text<-tolower(data$text)
-
-arts<-getDataByOrganization("IPCC", data)
-arts<-arts%>%
-  rbind(getDataByOrganization("Intergovernmental Panel on Climate Change",data))%>%
-  unique()
-
-
-n.dt<- document_topic[document_topic$document %in% arts$id,]%>%
-  plyr::rename(c("document"="id"))
-
-
-
-# arts.dt<-merge(n.dt,arts, by="id")%>% select(id,topic) %>% group_by(topic) %>% 
-topic.top1.word <- terms.summary %>% group_by(topic) %>% top_n(1)
-
-topic.top1.word <- topic.top1.word %>% group_by(topic, word) %>% filter(row_number() == 1) %>% 
-  ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
-
-topic.top1.word$labs <- paste(topic.top1.word$word," (",topic.top1.word$topic,")",sep="")
-
-arts.dt<-as.data.frame(n.dt)
-arts.dt<- arts.dt%>%
-  select(id,topic) %>%
-  group_by(topic) %>%
-  summarize(n=n())%>%
-  mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
-
-
-g<-ggplot(arts.dt, aes(x=reorder(topic,n), y=n))+
-  geom_col( ) +
-  theme(axis.text.x = element_text(angle = 90))+
-  ggtitle("Topics of IPCC articles")+
-  coord_flip()+
-  xlab("topics")+
-  ylab("# articles")
-# geom_bar(stat="identity",position="stack")+
+if(ipcc-analyse){
+  source("functions-stats.R")
+  data$text<-tolower(data$text)
+  
+  arts<-getDataByOrganization("IPCC", data)
+  arts<-arts%>%
+    rbind(getDataByOrganization("Intergovernmental Panel on Climate Change",data))%>%
+    unique()
+  
+  
+  n.dt<- document_topic[document_topic$document %in% arts$id,]%>%
+    plyr::rename(c("document"="id"))
+  
+  
+  
+  # arts.dt<-merge(n.dt,arts, by="id")%>% select(id,topic) %>% group_by(topic) %>% 
+  topic.top1.word <- terms.summary %>% group_by(topic) %>% top_n(1)
+  
+  topic.top1.word <- topic.top1.word %>% group_by(topic, word) %>% filter(row_number() == 1) %>% 
+    ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
+  
+  topic.top1.word$labs <- paste(topic.top1.word$word," (",topic.top1.word$topic,")",sep="")
+  
+  arts.dt<-as.data.frame(n.dt)
+  arts.dt<- arts.dt%>%
+    select(id,topic) %>%
+    group_by(topic) %>%
+    summarize(n=n())%>%
+    mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
+  
+  
+  g<-ggplot(arts.dt, aes(x=reorder(topic,n), y=n))+
+    geom_col( ) +
+    theme(axis.text.x = element_text(angle = 90))+
+    ggtitle("Topics of IPCC articles")+
+    coord_flip()+
+    xlab("topics")+
+    ylab("# articles")
+  # geom_bar(stat="identity",position="stack")+
+    # ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
+    # scale_x_discrete(breaks = xbreaks)+
+    # facet_wrap(.~topic, ncol=2)
+  g
+  
+  
+  
+  #####
+  
+  topic.top1.word <- terms.summary %>% group_by(topic) %>% top_n(1)
+  
+  topic.top1.word <- topic.top1.word %>% group_by(topic, word) %>% filter(row_number() == 1) %>%
+    ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
+  
+  topic.top1.word$labs <- paste(topic.top1.word$word," (",topic.top1.word$topic,")",sep="")
+  
+  arts.pb<-as.data.frame(n.dt)
+  arts.pb<- arts.pb%>%
+    # select(id,topic) %>%
+    group_by(topic) %>%
+    summarize(n=mean(value))%>%
+    mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
+  
+  
+  g<-ggplot(arts.pb, aes(x=reorder(topic,n), y=n))+
+  # g<-ggplot(arts.pb, aes(x=topic, y=n))+
+    geom_col( ) +
+    theme(axis.text.x = element_text(angle = 90))+
+    ggtitle("Topics of IPCC articles")+
+    coord_flip()+
+    xlab("topics")+
+    ylab("probability of topic")
+  # geom_bar(stat="identity",position="stack")+
   # ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
   # scale_x_discrete(breaks = xbreaks)+
   # facet_wrap(.~topic, ncol=2)
-g
+  ggsave(paste0(res_dir, data_name, "-ipcc-wtopic-probab.pdf"))
+  
 
-
-
-#####
-
-topic.top1.word <- terms.summary %>% group_by(topic) %>% top_n(1)
-
-topic.top1.word <- topic.top1.word %>% group_by(topic, word) %>% filter(row_number() == 1) %>%
-  ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
-
-topic.top1.word$labs <- paste(topic.top1.word$word," (",topic.top1.word$topic,")",sep="")
-
-arts.pb<-as.data.frame(n.dt)
-arts.pb<- arts.pb%>%
-  # select(id,topic) %>%
-  group_by(topic) %>%
-  summarize(n=mean(value))%>%
-  mutate(topic=factor(topic,levels = 1:10, labels=topic.top1.word$labs))
-  # mutate(topic=factor(topic,levels = 1:10))#, labels=topic.top1.word$labs))
-
-
-g<-ggplot(arts.pb, aes(x=reorder(topic,n), y=n))+
-# g<-ggplot(arts.pb, aes(x=topic, y=n))+
-  geom_col( ) +
-  theme(axis.text.x = element_text(angle = 90))+
-  ggtitle("Topics of IPCC articles")+
-  coord_flip()+
-  xlab("topics")+
-  ylab("probability of topic")
-# geom_bar(stat="identity",position="stack")+
-# ylim(0.0, (max(grouped.sp$sum_probability)+0.05))+
-# scale_x_discrete(breaks = xbreaks)+
-# facet_wrap(.~topic, ncol=2)
-ggsave(paste0(res_dir, data_name, "-ipcc-wtopic-probab.pdf"))
-
-
+}

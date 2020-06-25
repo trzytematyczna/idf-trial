@@ -111,8 +111,8 @@ if(with.retweets==T){
   test1<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
     pivot_longer(names_to="topic", values_to="probability", c(t_1:t_9)) %>% ##topic_number k_list
     tidyr::separate(topic, into =c("t","topic")) %>%
-    select(-t)%>%
-    select(-id)
+    select(-t)#%>%
+     #select(-id)
   rt.top.test1<-test1[test1$retweetcount>0,]
 
   # rt.top.test1 <- rt.top.test1 %>%
@@ -124,11 +124,11 @@ if(with.retweets==T){
     group_by(date,topic) %>%
     summarise(sump=sum(probability),nb=n())
   
-  g.rt.test1<-g.rt.test1%>%
+  plot.rt.test1<-g.rt.test1%>%
     mutate(sum_probability=sump/nb)
   
-  g.rt.test1 <- g.rt.test1 %>%  mutate(topic=factor(topic,levels = 1:9,  labels=topic.labels$label))
-  g<-ggplot(g.rt.test1, aes(x=date,y=sum_probability))+
+  plot.rt.test1 <- plot.rt.test1 %>%  mutate(topic=factor(topic,levels = 1:9,  labels=topic.labels$label))
+  g<-ggplot(plot.rt.test1, aes(x=date,y=sum_probability))+
     geom_bar(stat="identity",position="stack")+
     ylim(0.0, (max(g.rt$sum_probability)+0.05))+
     geom_hline(data=global.means, aes(yintercept = gtp), lty="dashed",color=col[1])+

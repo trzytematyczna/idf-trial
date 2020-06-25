@@ -13,8 +13,8 @@ library(stringr)
 options <- commandArgs(trailingOnly = TRUE)
 filename<-paste0("file_",options[1],"-timeline")
 ####selected parameters to check the results####
- # k_list<-10
-k_list <- c(9:10)
+ k_list<-9
+# k_list <- c(9:10)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
@@ -47,21 +47,19 @@ custom.stopwords <- c("rt","amp","mt","climate","change","climatechange","jan","
 
 
 if(data_name %like% "twitter"){
-  data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"",  header = TRUE)#colClasses = c("factor","character"))#, encoding = "UTF-8")
-  # data$id<- 1:nrow(data)
+  # data <- read.csv(data_dir, stringsAsFactors = FALSE, sep=",", quote = "\"",  header = TRUE)#colClasses = c("factor","character"))#, encoding = "UTF-8")
+  data<-read_csv(data_dir, col_types = cols (id = col_character()))
   data$date<-NULL
   data$from_user_id<-NULL
   data$from_user_name<-NULL
   data$from_user_followercount<-NULL
 }else{
-  data<- read.csv2(data_dir, stringsAsFactors = FALSE)
+  data<-read_csv2(data_dir, col_types = cols (id = col_character()))
+  # data<- read.csv2(data_dir, stringsAsFactors = FALSE)
 }
 
 dtm <- CreateDtm(data$text, 
                  doc_names = data$id, 
-                 # remove_punctuation = TRUE,
-                 # remove_numbers = TRUE,
-                 # lower = TRUE,
                  stopword_vec = c(stopwords::stopwords("en"), stopwords::stopwords(source = "smart"), custom.stopwords),
                  ngram_window = c(1, ngram))
 original_tf <- TermDocFreq(dtm = dtm)
