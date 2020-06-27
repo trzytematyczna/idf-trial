@@ -18,30 +18,45 @@ for (i in data.files){
   # df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
   df<-read_csv(paste0(data_dir,i), col_types = cols (id = col_character()))
   
-  df<-df[!df$text=="",] #empty tweets
+  # df<-df[!df$text=="",] #empty tweets
   
+  newdf <- df %>% 
+    filter(text!="",
+           !grepl("Climate Report: High: ", text),
+           !grepl("Climate: Hi: ", text),
+           !grepl("climate report: high: ", text),
+           !grepl("climate: hi: ", text),
+           !grepl("ClapRobot", text),
+           !grepl("OKCStormWatcher", text),
+           !grepl("daily is out!", text),
+           !grepl("^the.*daily!$", text),
+           !grepl("^the latest.*!$", text)
+    )
   #learning data used for LDA
   # learning.data <- read.csv(paste0(learning.data.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8")
   # df<-df[!df$id %in% learning.data$id,]
 
   #weatherbots
-  df<-df[!df$text %like% "Climate Report: High: ",] #61770
-  df<-df[!df$text %like% "Climate: Hi: ",] #96986
-  df<-df[!df$text %like% "climate report: high: ",] 
-  df<-df[!df$text %like% "climate: hi: ",] 
-  df<-df[!df$from_user_name %like% "ClapRobot",]
-  df<-df[!df$from_user_name %like% "OKCStormWatcher",]
-  #dailybots
-  df<-df[!df$text %like% "daily is out!",] #660
-  df<-df[!df$text %in% grep("^the.*daily!$", df$text, value = TRUE) ,] #4283
-  df<-df[!df$text %in% grep("^the latest.*!$", df$text, value = TRUE) ,]#8600
-  df<-df[!df$from_user_name %like% "ETSKYWARN",]
+  # df<-df[!df$text %like% "Climate Report: High: ",] #61770
+  # df<-df[!df$text %like% "Climate: Hi: ",] #96986
+  # df<-df[!df$text %like% "climate report: high: ",] 
+  # df<-df[!df$text %like% "climate: hi: ",] 
+  # df<-df[!df$from_user_name %like% "ClapRobot",]
+  # df<-df[!df$from_user_name %like% "OKCStormWatcher",]
+  # 
+  # 
+  # 
+  # #dailybots
+  # df<-df[!df$text %like% "daily is out!",] #660
+  # df<-df[!df$text %in% grep("^the.*daily!$", df$text, value = TRUE) ,] #4283
+  # df<-df[!df$text %in% grep("^the latest.*!$", df$text, value = TRUE) ,]#8600
+  # # df<-df[!df$from_user_name %like% "ETSKYWARN",]
   
   filename<-paste0(str_replace(i,".csv",""),"-testsample.csv")
   # format(head(learning.data$id, n=50), digits=22)
   # df %>% fwrite(paste0("./data/twitter/test-data-2M/",filename), quote = FALSE, row.names = FALSE, sep=",", qmethod = "double")
   # df%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
-  df%>%write_csv(paste0(res_dir,filename))
+  newdf%>%write_csv(paste0(res_dir,filename))
   # res <- rbind(res,new.sample)
 }
 
