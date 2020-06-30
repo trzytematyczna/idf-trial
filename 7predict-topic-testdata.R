@@ -4,9 +4,9 @@ library(dplyr)
 library(data.table)
 library(readr)
 
-# options <- commandArgs(trailingOnly = TRUE)
-# filename<-paste0("file_",options[1],"-testsample")
-filename<-"test"
+options <- commandArgs(trailingOnly = TRUE)
+filename<-paste0("file_",options[1],"-testsample")
+# filename<-"test"
 print(filename)
 #filename<-paste0("file_5-testsample")
 k_list<-9
