@@ -3,9 +3,13 @@ library(data.table)
 library(stringr)
 library(DescTools)
 library(ggplot2)
+library(readr)
+
+global.plots<-T
+buckets.yes<-F
 
 data_name<-"twitter-500K"
-data_dir<-"./results/twitter-trained/assign/"
+data_dir<-"./results/twitter-trained/predict-results/"
 
 data.files <- list.files(data_dir)
 res_dir<-"./results/twitter-trained/"
@@ -17,7 +21,8 @@ doc.nb<-0
 buckets<-data.frame()
 for (i in data.files){
   print(i)
-  df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  # df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  df <- read_csv(paste0(data_dir,i), col_types = cols (id = col_character()))
     colnames(df)<-c("id","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
 
   means <- df %>% select(-id) %>%colMeans()
@@ -35,16 +40,16 @@ for (i in data.files){
   doc.nb<-doc.nb+nrow(df)
   
   
-  
-  cols<-c("t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
-  for(i in  seq(1,0.5,by=-0.1)){
-    lo<-i-0.1
-    up<-i
-    if(lo==0.4) lo<-0
-    bp<-df %>%  filter_at(cols, any_vars(between(.,lo,up)))
-    buckets<-rbind(buckets, c(nrow(bp),lo,up))
+  if(buckets.yes){
+    cols<-c("t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
+    for(i in  seq(1,0.5,by=-0.1)){
+      lo<-i-0.1
+      up<-i
+      if(lo==0.4) lo<-0
+      bp<-df %>%  filter_at(cols, any_vars(between(.,lo,up)))
+      buckets<-rbind(buckets, c(nrow(bp),lo,up))
+    }
   }
-  
 }
 
 global.means <- file.means %>% colMeans()
@@ -77,7 +82,7 @@ colnames(global.mults)<-c("mult","topic")
 colnames(global.sums)<-c("p","topic")
 colnames(global.means)<-c("gtp","topic")
 
-# global.means %>% write.csv2("./results/twitter-trained/k9-global-means.csv", row.names= F, quote = F)
+global.means %>% write_csv("./results/twitter-trained/k9-global-means.csv")
 
 gen<-merge(global.mults,global.sums, by="topic")
 gen<-merge(gen,global.means, by="topic")
@@ -90,8 +95,8 @@ generality<-generality%>%
 print(doc.nb)
 
 # generality%>% select(topic,gen.val)%>%write.csv("./results/twitter-trained/generality-topics.csv",row.names = FALSE, quote = FALSE)
-
-topic.labels<-read.csv("./results/twitter-trained/k-9-topic-words.csv")
+if(global.plots){
+topic.labels<-read_csv("./results/twitter-trained/k-9-topic-words.csv")
 
 topic.labels<-topic.labels%>% 
   group_by(topic) %>%
@@ -112,10 +117,11 @@ g<-ggplot(fin, aes(x=reorder(topic,gtp), y=gtp))+
   # coord_flip()+
   xlab("Topics")+
   ylab("Global probability of topic")
-# ggsave(paste0(res_dir, "mean-probability-k9-all-tweets.pdf"))
-
+ ggsave(paste0(res_dir, "mean-probability-k9-all-tweets.pdf"))
+}
 
 #########################
+if(buckets.yes){
 colnames(buckets)<-c("nb","lower","upper")
 buckets<-buckets%>%group_by(lower)%>%summarise(total=sum(nb))%>%arrange(lower)
 buckets<-cbind(buckets,seq(1:6))
@@ -129,7 +135,7 @@ g<-ggplot(buckets, aes(y=total, x=buck))+
   ylab("nb tweets")+ 
   scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
 ggsave(paste0(res_dir,"k9-prob-buckets.pdf"))
-
+}
 
 
 # file.info<-data.frame()

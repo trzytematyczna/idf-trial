@@ -3,8 +3,8 @@ library(data.table)
 library(stringr)
 library(DescTools)
 library(ggplot2)
+library(readr)
 
-data_name<-"twitter-500K"
 data_dir<-"./results/twitter-trained/assign-joined/"
 
 data.files <- list.files(data_dir)
@@ -17,8 +17,10 @@ doc.nb<-0
 buckets<-data.frame()
 for (i in data.files){
   print(i)
-  df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
-  colnames(df)<-c(colnames(df[1:7]),"t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
+  # df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  df <- read_csv(paste0(data_dir,i), col_types = cols (id = col_character()))
+  
+  # colnames(df)<-c(colnames(df[1:7]),"t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
   
   # asd<-cbind(df[3],df[8:16])
   df <- df %>% mutate(tcount = retweetcount+1)
@@ -82,7 +84,7 @@ global.means <- global.means %>%
 # colnames(global.sums)<-c("p","topic")
 colnames(global.means)<-c("gtp","topic")
 
-global.means %>% write.csv2("./results/twitter-trained/k9-global-means-retweets.csv", row.names= F, quote = F)
+global.means %>% write_csv("./results/twitter-trained/k9-global-means-retweets.csv")
 
 # gen<-merge(global.mults,global.sums, by="topic")
 # gen<-merge(gen,global.means, by="topic")
@@ -96,7 +98,7 @@ global.means %>% write.csv2("./results/twitter-trained/k9-global-means-retweets.
 # 
 # generality%>% select(topic,gen.val)%>%write.csv("./results/twitter-trained/generality-topics.csv",row.names = FALSE, quote = FALSE)
 
-topic.labels<-read.csv("./results/twitter-trained/k-9-topic-words.csv")
+topic.labels<-read_csv("./results/twitter-trained/k-9-topic-words.csv")
 
 topic.labels<-topic.labels%>% 
   group_by(topic) %>%

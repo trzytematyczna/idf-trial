@@ -2,10 +2,11 @@ library(dplyr)
 library(data.table)
 library(stringr)
 library(DescTools)
+library(readr)
 
 # data_name<-"twitter-2M"
 info_dir<-"./data/twitter/test-data-500K/"
-data_dir<-"./results/twitter-trained/assign/"
+data_dir<-"./results/twitter-trained/predict-results/"
 
 
 data.files <- list.files(data_dir)
@@ -20,11 +21,14 @@ for (i in 1:54){
   assign.file<-paste0("assignment-file_",i,"-testsample.csv")
   test.file<-paste0("file_",i,"-testsample.csv")
   print(i)
-  assign <- read.csv(paste0(data_dir,assign.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
-  test <- read.csv(paste0(info_dir,test.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  # assign <- read.csv(paste0(data_dir,assign.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  # test <- read.csv(paste0(info_dir,test.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
+  assign <- read_csv(paste0(data_dir,assign.file), col_types = cols (id = col_character()))
+  test <- read_csv(paste0(info_dir,test.file), col_types = cols (id = col_character()))
+  
   test$date<-as.Date(test$date)
   
-  colnames(assign)<-c("id","1","2","3","4","5","6","7","8","9")
+  # colnames(assign)<-c("id","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
   
   merged<-merge(test,assign, by="id")
   mdf<-rbind(mdf,merged)
@@ -34,7 +38,8 @@ for (i in 1:54){
     # count<-1
     filename<-paste0("assign-",c,".csv")
     c<-c+1
-    mdf%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
+    # mdf%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
+    mdf%>%write_csv(paste0(res_dir,filename))
     mdf<-data.frame()
   }
 }

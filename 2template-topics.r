@@ -85,6 +85,8 @@ top20.summary <- top20.summary %>% group_by(topic, word) %>% filter(row_number()
 
 word_topic_freq <- left_join(top20.summary, original_tf, by = c("word" = "term"))
 
+top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/twitter-trained/k-9-topic-words.csv")
+
 # document -> topic
 document_topic <- data.frame(model$theta)
 document_topic$document <-rownames(document_topic) 
