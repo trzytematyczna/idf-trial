@@ -21,10 +21,6 @@ if(week.yes == TRUE){
 }else if(month.yes == TRUE){
   divide.by <- '%y-%m'
   xlabel<-'month'
-}else{
-  divide.by <- '%y-%m-%d'
-  xlabel<-'day'
-  
 }
 
 topics.labs.fun<-function(labfilename){

@@ -4,6 +4,9 @@ library(stringr)
 library(DescTools)
 library(readr)
 
+
+#####before joining probs with tweetinfo add in each of 54 files the header using add-ids-to-predict-results-x54-before-twitter-join-predictions.sh
+
 # data_name<-"twitter-2M"
 info_dir<-"./data/twitter/test-data-500K/"
 data_dir<-"./results/twitter-trained/predict-results/"

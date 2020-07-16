@@ -63,7 +63,7 @@ saveRDS(newdtm, file = dtm_file)
 
 assignments <- predict(model, newdtm,
                        method = "gibbs", 
-                       iterations = 2000, #200
-                       burnin = 20, #180
+                       iterations = 500, #200
+                       burnin = 75, #180
                        cpus = 1)
 assignments %>% write_csv(assignment_file, row.names = TRUE, quote = FALSE)
