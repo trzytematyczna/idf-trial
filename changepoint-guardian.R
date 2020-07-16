@@ -5,28 +5,14 @@ library(readr)
 library(tidyr)
 
 
-data_dir <- "./results/twitter-trained/assign-joined/assign-3.csv"
-df<-read_csv(data_dir, col_types = cols (id = col_character()))
-df$date<-as.Date(df$date)
-# colnames(df)<-c("id","date","retweetcount","from_user_id","from_user_name","from_user_followercount","text","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
-# df<-df[1:2000000,]
 
-probs<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
-  # mutate(month=format(date,divide.by))%>%
-  gather(topic, probability, t_1:t_9) %>% ##topic_number k_list
-  tidyr::separate(topic, into =c("t","topic")) %>%
-  select(-t)%>%
-  select(-id)
-
-grouped.sp <- probs%>%
-  group_by(date,topic) %>%
-  summarise(sum_probability=mean(probability))
-
+grouped.sp <- read_csv("./results/guardian-articles/all-day-probs-mars17-may17.csv")
+# grouped.sp<-selc
 
 data <- grouped.sp %>%
   group_by(topic) %>%
-  mutate(index=dplyr::row_number())# %>%
-#  select(-date)
+  mutate(index=dplyr::row_number()) #%>%
+#select(-date)
 
 avg_data <- data %>%
   group_by(topic) %>%
@@ -64,7 +50,7 @@ segments_data <- data %>%
     # Find segments start/end points
     only_segments <- with_segments %>%
       filter(segment > 0)
-      
+    
     coord_segments_min <- only_segments %>%
       group_by(segment) %>%
       filter(index == min(index)) %>%
@@ -81,7 +67,7 @@ segments_data <- data %>%
       mutate(seg_end=seg_end+1) %>% ### for geom_step --> visualisation moved by 1
       mutate(min_prob = min_probability,
              max_prob = max_probability)
-
+    
     all_coords
   })
 
@@ -113,8 +99,7 @@ trends_area <- trends_segments %>%
   group_by(topic,segment) %>%
   summarise(area = sum(sum_probability))
 trends_trend <- trends_segments %>% 
-  mutate(trend = ifelse(abs(diff)<0.012, "same", ifelse(diff<0, "down", "up")))
-
+  mutate(trend = ifelse(abs(diff)<0.01, "same", ifelse(diff<0, "down", "up")))
 
 # Prepare labels for dates
 label_dates <- data %>%
@@ -124,22 +109,6 @@ label_dates <- data %>%
 num_of_indices <- data %>%
   pull(index) %>%
   max()
-
-# p <- ggplot(data.selected, aes(x=index, y=sum_probability, ymax=0.38)) +
-#   geom_step() +
-#   # geom_line()+
-#   geom_hline(data=avg_data.selected, aes(yintercept=mean), lty=2, color="red") +
-#   geom_rect(data=non_unitary_segments_data.selected,
-#             inherit.aes = FALSE,
-#             aes(xmin=seg_start, xmax=seg_end, ymin=min_prob, ymax=max_prob),
-#             alpha=0.3,
-#             fill="green") +
-#   facet_grid(topic~., scales = "free_y") +
-#   ylab("Probability")+
-#   xlab("Date")+
-#   # ylim(0.3, 0.37)+
-#   scale_x_continuous(breaks = seq(1,num_of_indices,4), labels=label_dates[seq(1,num_of_indices,4)]) +
-#   theme(axis.text.x = element_text(angle = 90, hjust=1))
 
 #only segments
 p <- ggplot(data, aes(x=index, y=sum_probability)) +
@@ -151,15 +120,13 @@ p <- ggplot(data, aes(x=index, y=sum_probability)) +
             aes(xmin=seg_start, xmax=seg_end, ymin=min_prob, ymax=max_prob),
             alpha=0.3,
             fill="green") +
-  facet_grid(topic~., scales = "free_y")+
-  ylab("Probability")+
-  xlab("Date")+
-  # ylim(0.3, 0.37)+
-  scale_x_continuous(breaks = seq(1,num_of_indices,4), labels=label_dates[seq(1,num_of_indices,4)]) +
-  theme(axis.text.x = element_text(angle = 90, hjust=1))
-
+  facet_grid(topic~., scales = "free_y") +
+  xlab("Probability")+
+  ylab("Date")+
+  scale_x_continuous(breaks = seq(1,num_of_indices,3), labels=label_dates[seq(1,num_of_indices,3)]) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
 p
-ggsave("./results/twitter-trained/green-trends-all.pdf", device = "pdf")
+ ggsave("./results/guardian-articles/green-events-mars-may2017.pdf", device = "pdf")
 
 #segments with trends
 q <- ggplot(data, aes(x=index, y=sum_probability)) +
@@ -171,5 +138,5 @@ q <- ggplot(data, aes(x=index, y=sum_probability)) +
             aes(xmin=index, xmax=index+1, ymin=0, ymax=0.3, fill=trend),
             alpha=0.3) +
   facet_grid(topic~., scales = "free_y")
-ggsave("./results/twitter-trained/trands-events.pdf", device = "pdf")
+# ggsave("./results/twitter-trained/trands-events.pdf", device = "pdf")
 

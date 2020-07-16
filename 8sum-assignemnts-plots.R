@@ -138,32 +138,3 @@ ggsave(paste0(res_dir,"k9-prob-buckets.pdf"))
 }
 
 
-# file.info<-data.frame()
-# for (i in data.files){
-#   print(i)
-#   document_topic <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
-#   colnames(document_topic)<-c("id","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
-#   
-#   document_topic$id<-document_topic$id%>%format( digits=20)
-#   document_topic <- document_topic %>% 
-#     reshape2::melt(id.vars = "id") %>% 
-#     rename(topic = variable) %>% 
-#     tidyr::separate(topic, into =c("t","topic")) %>% 
-#     select(-t) %>% 
-#     group_by(id) %>% 
-#     arrange(desc(value))
-#   
-#   base.inf <- base.inf %>% mutate(brackets=(value/doc.nb)*1/gtp*(log2(value/(doc.nb*gtp))))
-#   
-#   gen<-base.inf%>%
-#     group_by(topic)%>%
-#     summarize(gen=-sum(brackets))#*(1/normalize))
-#   
-#   generality <-dplyr::inner_join(gen, global.probabilities, by = "topic") %>% 
-#     mutate(generality=gen*(1/log2(doc.nb)))#*1/normalize)
-#   
-#   file.info<-bind_rows(file.info,means)  
-#   
-#   
-#   # df%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
-# }

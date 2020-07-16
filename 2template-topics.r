@@ -9,31 +9,47 @@ library(tidyr)
 library(ggwordcloud)
 library(gridExtra)
 library(readr)
+library(jcolors)
 
 ####selected parameters to check the results####
-k_list<-9
-alpha<-0.1 # 0.alpha value
-ngram<- 1#ngrams
 
-data_name<-"twitter-2M"
-# data_dir<-"./data/twitter/split-1M/twitter-2M-sampled.csv"
-
-rds_dir <- "./results/twitter-2M" #"./test/"
-model_dir<-"./results/twitter-2M" #"./test"
-res_dir<-model_dir
-
+####Twitter 
+# data_name<-"twitter-2M"
+# 
+# k_list<-9
+# alpha<-0.1 # 0.alpha value
+# ngram<- 1#ngrams
+# 
+# rds_dir <- "./results/twitter-2M" #"./test/"
+# exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
+# model_dir <- "./results/twitter-2M/"
+# model_name <- paste0("_topics-",exp_name, ".rda")
+# res_dir<-model_dir
+# dtm_file <- "./results/twitter-2M/dtm-twitter-2M-ngram-1.Rds"
+# original_tf_file <- "./results/twitter-2M/originaltf-twitter-2M-ngram-1.Rds"
+#####
+  
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
 # rds_dir <- "./results/guardian-comments/"
 # model_dir <- paste0("./results/guardian-comments/k-",k_list)
 # res_dir <- "./results/guardian-comments"
+# exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
+# dtm_file<-paste0(rds_dir,"/dtm-",data_name,"-ngram-",ngram,".Rds")
+# original_tf_file <- paste0(rds_dir,"/originaltf-",data_name,"-ngram-",ngram,".Rds")
 
+####GUardian-articles
+data_name<-"guardian-articles"
+
+k_list<-10
+alpha<-0.1 # 0.alpha value
+ngram<- 1#ngrams
 exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
-
-dtm_file<-paste0(rds_dir,"/dtm-",data_name,"-ngram-",ngram,".Rds")
-original_tf_file <- paste0(rds_dir,"/originaltf-",data_name,"-ngram-",ngram,".Rds")
-
+dtm_file<-"./results/guardian-articles/dtm-guardian-articles-ngram-1.Rds"
+original_tf_file<-"./results/guardian-articles/originaltf-guardian-articles-ngram-1.Rds"
 model_name <- paste0("_topics-",exp_name, ".rda")
+model_dir <- "./results/guardian-articles/"
+res_dir<-model_dir
 
 
 ##################
@@ -75,7 +91,7 @@ terms.summary <- terms.summary %>%
   group_by(topic) %>% 
   arrange(desc(value))
 
-terms.summary %>% write_csv("./results/twitter-2M/twitter-term-topic-probab.csv")
+# terms.summary %>% write_csv("./results/twitter-2M/twitter-term-topic-probab.csv")
 
 # top20.summary -> word +topic + probability 
 top20.summary <- terms.summary %>% group_by(topic) %>% top_n(20)
@@ -85,7 +101,8 @@ top20.summary <- top20.summary %>% group_by(topic, word) %>% filter(row_number()
 
 word_topic_freq <- left_join(top20.summary, original_tf, by = c("word" = "term"))
 
-top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/twitter-trained/k-9-topic-words.csv")
+# top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/twitter-trained/k-9-topic-words.csv")
+# top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/guardian-articles/k-10-topic-words.csv")
 
 # document -> topic
 document_topic <- data.frame(model$theta)
@@ -99,6 +116,8 @@ document_topic <- document_topic %>%
   group_by(document) %>% 
   arrange(desc(value)) %>%
   filter(row_number() ==1)
+
+# document_topic%>%write_csv("./results/guardian-predicted.csv") ## delete filter row number == 1 to have all probabilities
 
 #Visualising of topics in a dendrogram
 #probability distributions called Hellinger distance, distance between 2 probability vectors
@@ -125,18 +144,22 @@ for(i in 1:length(unique(top20.summary$topic))){
 
 dev.off()
 
-
+### #1B9E77 green, #7570B3 violet, "#E7298A fuxia
 wclist<-list()
 for(i in 1:length(unique(top20.summary$topic))){  
  wclist[[i]]<- ggwordcloud(words = subset(top20.summary, topic == i)$word, 
                       freq = subset(top20.summary, topic == i)$value,
-            scale = c(1.3, 0.5),
+            scale = c(1.8, 0.5),
             min.freq = 1,
             max.words = 20, 
             random.order = FALSE, 
             random.color = FALSE,
-            rot.per = 0.2, 
-            colors = brewer.pal(8, "Dark2")) +
+            rot.per = 0.2,
+ # scale_color_jcolors(palette = "pal7")+
+            # colors = brewer.pal(8, "Dark2")) +
+            colors = "#1B9E77")+ #green
+            # colors = "#7570B3")+ #violet
+            # colors = "#E7298A")+ #pink
           ggtitle(paste0('Topic ',i))
 }
 wcall<-grid.arrange(grobs=wclist, top=exp_name, ncol=2)

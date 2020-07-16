@@ -13,7 +13,6 @@ data.files <- list.files(data_dir)
 nfiles<-length(data.files)
 # learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 res_dir<-"./results/twitter-trained/assign-joined/"
-# data.files<-data.files[1:2]
  mdf<-data.frame()
  c<-1
  # count<-1
@@ -21,8 +20,6 @@ for (i in 1:54){
   assign.file<-paste0("assignment-file_",i,"-testsample.csv")
   test.file<-paste0("file_",i,"-testsample.csv")
   print(i)
-  # assign <- read.csv(paste0(data_dir,assign.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
-  # test <- read.csv(paste0(info_dir,test.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
   assign <- read_csv(paste0(data_dir,assign.file), col_types = cols (id = col_character()))
   test <- read_csv(paste0(info_dir,test.file), col_types = cols (id = col_character()))
   

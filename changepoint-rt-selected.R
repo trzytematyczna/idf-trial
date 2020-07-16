@@ -4,29 +4,36 @@ library(ggplot2)
 library(readr)
 library(tidyr)
 
-
+selected.topic<-6
 data_dir <- "./results/twitter-trained/assign-joined/assign-3.csv"
 df<-read_csv(data_dir, col_types = cols (id = col_character()))
 df$date<-as.Date(df$date)
 # colnames(df)<-c("id","date","retweetcount","from_user_id","from_user_name","from_user_followercount","text","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
-# df<-df[1:2000000,]
+ # df<-df[1:2000000,]
 
-probs<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
-  # mutate(month=format(date,divide.by))%>%
-  gather(topic, probability, t_1:t_9) %>% ##topic_number k_list
+probs.rt<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount,-text)%>%
+  pivot_longer(names_to="topic", values_to="probability", c(t_1:t_9)) %>% ##topic_number k_list
   tidyr::separate(topic, into =c("t","topic")) %>%
   select(-t)%>%
   select(-id)
 
-grouped.sp <- probs%>%
+retweets.only <- probs.rt %>% 
+  filter(retweetcount >0)
+retweets.only <- retweets.only %>%
+  mutate(mprob=probability*retweetcount)
+
+grouped.retweets.only<- retweets.only %>%
   group_by(date,topic) %>%
-  summarise(sum_probability=mean(probability))
+  summarise(sumpro=sum(mprob),sumtweet=sum(retweetcount))%>%
+  mutate(sum_probability=sumpro/sumtweet)
 
+grouped.sp.rt<-grouped.retweets.only%>%
+  select(-sumpro,-sumtweet)
 
-data <- grouped.sp %>%
+data <- grouped.sp.rt %>%
   group_by(topic) %>%
-  mutate(index=dplyr::row_number())# %>%
-#  select(-date)
+  mutate(index=dplyr::row_number()) %>%
+  select(-date)
 
 avg_data <- data %>%
   group_by(topic) %>%
@@ -64,7 +71,7 @@ segments_data <- data %>%
     # Find segments start/end points
     only_segments <- with_segments %>%
       filter(segment > 0)
-      
+    
     coord_segments_min <- only_segments %>%
       group_by(segment) %>%
       filter(index == min(index)) %>%
@@ -78,17 +85,17 @@ segments_data <- data %>%
       ungroup() %>%
       select(seg_end) ##segment already in min tibble
     all_coords <- cbind(coord_segments_min, coord_segments_max) %>%
-      mutate(seg_end=seg_end+1) %>% ### for geom_step --> visualisation moved by 1
+      # mutate(seg_end=seg_end+1) %>% ### for geom_step --> visualisation moved by 1
       mutate(min_prob = min_probability,
              max_prob = max_probability)
-
+    
     all_coords
   })
 
 ##seg_len is length of the segment-1 (!) so one-time peaks will have seg_len = 0
 non_unitary_segments_data <- segments_data %>%
   mutate(seg_len=seg_end-seg_start)%>%
-  filter(seg_len>2)
+  filter(seg_len>1)
 
 
 
@@ -115,61 +122,58 @@ trends_area <- trends_segments %>%
 trends_trend <- trends_segments %>% 
   mutate(trend = ifelse(abs(diff)<0.012, "same", ifelse(diff<0, "down", "up")))
 
-
-# Prepare labels for dates
-label_dates <- data %>%
-  filter(topic == 1) %>%
-  pull(date) %>%
-  as.character()
-num_of_indices <- data %>%
-  pull(index) %>%
-  max()
-
-# p <- ggplot(data.selected, aes(x=index, y=sum_probability, ymax=0.38)) +
-#   geom_step() +
-#   # geom_line()+
-#   geom_hline(data=avg_data.selected, aes(yintercept=mean), lty=2, color="red") +
-#   geom_rect(data=non_unitary_segments_data.selected,
-#             inherit.aes = FALSE,
-#             aes(xmin=seg_start, xmax=seg_end, ymin=min_prob, ymax=max_prob),
-#             alpha=0.3,
-#             fill="green") +
-#   facet_grid(topic~., scales = "free_y") +
-#   ylab("Probability")+
-#   xlab("Date")+
-#   # ylim(0.3, 0.37)+
-#   scale_x_continuous(breaks = seq(1,num_of_indices,4), labels=label_dates[seq(1,num_of_indices,4)]) +
-#   theme(axis.text.x = element_text(angle = 90, hjust=1))
-
+non_unitary_segments_data.selected<-non_unitary_segments_data%>%filter(topic==selected.topic)
+data.selected<-data%>%filter(topic==selected.topic)
+trends_trend.selected<-trends_trend%>%filter(topic==selected.topic)
+avg_data.selected<-avg_data%>%filter(topic==selected.topic)
 #only segments
-p <- ggplot(data, aes(x=index, y=sum_probability)) +
+p <- ggplot(data.selected, aes(x=index, y=sum_probability)) +
   geom_step() +
   # geom_line()+
-  geom_hline(data=avg_data, aes(yintercept=mean), lty=2, color="red") +
-  geom_rect(data=non_unitary_segments_data,
+  geom_hline(data=avg_data.selected, aes(yintercept=mean), lty=2, color="red") +
+  geom_rect(data=non_unitary_segments_data.selected,
             inherit.aes = FALSE,
             aes(xmin=seg_start, xmax=seg_end, ymin=min_prob, ymax=max_prob),
             alpha=0.3,
-            fill="green") +
-  facet_grid(topic~., scales = "free_y")+
-  ylab("Probability")+
-  xlab("Date")+
-  # ylim(0.3, 0.37)+
-  scale_x_continuous(breaks = seq(1,num_of_indices,4), labels=label_dates[seq(1,num_of_indices,4)]) +
-  theme(axis.text.x = element_text(angle = 90, hjust=1))
-
+            fill="green") 
+# facet_grid(topic~., scales = "free_y")
+ggsave(paste0("./results/twitter-trained/trends-green-t",selected.topic,".pdf"), device = "pdf")
 p
-ggsave("./results/twitter-trained/green-trends-all.pdf", device = "pdf")
-
 #segments with trends
-q <- ggplot(data, aes(x=index, y=sum_probability)) +
+q <- ggplot(data.selected, aes(x=index, y=sum_probability)) +
   geom_step() +
   # geom_line()+
-  geom_hline(data=avg_data, aes(yintercept=mean), lty=2, color="red") +
-  geom_rect(data=trends_trend,
+  geom_hline(data=avg_data.selected, aes(yintercept=mean), lty=2, color="red") +
+  geom_rect(data=trends_trend.selected,
             inherit.aes = FALSE,
-            aes(xmin=index, xmax=index+1, ymin=0, ymax=0.3, fill=trend),
-            alpha=0.3) +
-  facet_grid(topic~., scales = "free_y")
-ggsave("./results/twitter-trained/trands-events.pdf", device = "pdf")
+            aes(xmin=index, xmax=index+1, ymin=0, ymax=max(data.selected$sum_probability), fill=trend),
+            alpha=0.3)
 
+# facet_grid(topic~., scales = "free_y")
+q
+ggsave(paste0("./results/twitter-trained/trends-colors-t",selected.topic,".pdf"), device = "pdf")
+
+
+library(gridExtra)
+
+pdf("trends-joined-t",selected.topic,".pdf")
+grid.arrange(p,q,nrow=2)
+dev.off()
+# 
+# 
+# peak.df.fun <- function(df,topic, threshold, weeknb){
+#   divide.by<-'%y-%U'
+#   cols<-c("t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
+#   selected.topic<-c(topic)
+#   
+#   # df.selected <- df %>% 
+#   # filter_at(cols, any_vars(.>threshold))
+#   
+#   peak.df<- df %>% 
+#     mutate(month=format(date, divide.by)) %>%
+#     filter_at(cols, any_vars(.>threshold))
+#   
+#   peak.df <- peak.df[peak.df$month==weeknb,]
+#   
+#   peak.df
+# }

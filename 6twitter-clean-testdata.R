@@ -3,6 +3,9 @@ library(data.table)
 library(stringr)
 library(readr)
 
+#### get rid of weather bots-like tweets from train data before LDA prediction
+### Example: Climate: Hi: 46 Lo: 27 Precip: 0.0 Snow: 0.0
+### Example: Climate Report: High: 34 Low: 17 Precip: 0.03 Snow: 0.2"
 
 data_name<-"twitter-500K"
 data_dir<-"./data/twitter/split-500K/"
@@ -15,14 +18,11 @@ res_dir<-"./data/twitter/test-data-500K/"
 # res<-data.frame()
 for (i in data.files){
   print(i)
-  # df <- read.csv(paste0(data_dir,i), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
   df<-read_csv(paste0(data_dir,i), col_types = cols (id = col_character()))
   
-  # df<-df[!df$text=="",] #empty tweets
-  
   newdf <- df %>% 
-    filter(text!="",
-           !grepl("Climate Report: High: ", text),
+    filter(text!="", #emty tweets
+           !grepl("Climate Report: High: ", text), #bots
            !grepl("Climate: Hi: ", text),
            !grepl("climate report: high: ", text),
            !grepl("climate: hi: ", text),
@@ -32,34 +32,13 @@ for (i in data.files){
            !grepl("^the.*daily!$", text),
            !grepl("^the latest.*!$", text)
     )
-  #learning data used for LDA
+  #learning data used for LDA -- uncomment if you dont want training data in test sample
   # learning.data <- read.csv(paste0(learning.data.file), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8")
   # df<-df[!df$id %in% learning.data$id,]
 
-  #weatherbots
-  # df<-df[!df$text %like% "Climate Report: High: ",] #61770
-  # df<-df[!df$text %like% "Climate: Hi: ",] #96986
-  # df<-df[!df$text %like% "climate report: high: ",] 
-  # df<-df[!df$text %like% "climate: hi: ",] 
-  # df<-df[!df$from_user_name %like% "ClapRobot",]
-  # df<-df[!df$from_user_name %like% "OKCStormWatcher",]
-  # 
-  # 
-  # 
-  # #dailybots
-  # df<-df[!df$text %like% "daily is out!",] #660
-  # df<-df[!df$text %in% grep("^the.*daily!$", df$text, value = TRUE) ,] #4283
-  # df<-df[!df$text %in% grep("^the latest.*!$", df$text, value = TRUE) ,]#8600
-  # # df<-df[!df$from_user_name %like% "ETSKYWARN",]
   
   filename<-paste0(str_replace(i,".csv",""),"-testsample.csv")
-  # format(head(learning.data$id, n=50), digits=22)
-  # df %>% fwrite(paste0("./data/twitter/test-data-2M/",filename), quote = FALSE, row.names = FALSE, sep=",", qmethod = "double")
-  # df%>%write.csv(paste0(res_dir,filename), quote = TRUE, row.names = FALSE)
   newdf%>%write_csv(paste0(res_dir,filename))
-  # res <- rbind(res,new.sample)
 }
 
 
-#Climate: Hi: 46 Lo: 27 Precip: 0.0 Snow: 0.0
-#Climate Report: High: 34 Low: 17 Precip: 0.03 Snow: 0.2"

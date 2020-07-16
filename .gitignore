@@ -7,6 +7,8 @@
 *.Rds
 *.rds
 data/**
+
+results/guardian-articles/*.csv
 results/write.csv/**
 results/twitter-2M/twitter-term-topic-probab.csv
 results/guardian-articles/guardian-articless-term-topic-probab.csv

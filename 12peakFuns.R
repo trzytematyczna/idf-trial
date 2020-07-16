@@ -23,6 +23,8 @@ UserMaxFollowersGlobally<-function(){
 
 UserMaxFollowersPeak<-function(peak.df, topn){
   
+  # asd<-peak.df %>% arrange(desc(from_user_followercount),desc(retweetcount))
+  
   tweet.tops.what <- peak.df %>% 
     top_n(from_user_followercount, n=topn) #%>% 
     #pull(!!sym(what))
@@ -130,6 +132,24 @@ peak.df.fun <- function(df,topic, threshold, weeknb){
 # dto<-as.Date('2016-08-28')
 # cols<-c("date")
 # peak.df<-df%>%filter_at(cols, any_vars(between(.,dfrom,dto)))
+day.peak <- function(df, topic, threshold){
+  # divide.by<-'%y-%U'
+  # cols<-c("t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
+  # selected.topic<-c(topic)
+  
+  cols<-c(topic)
+  # df.selected <- df %>% 
+  # filter_at(cols, any_vars(.>threshold))
+  
+  peak.df<- df %>% 
+    # mutate(month=format(date, divide.by)) %>%
+    filter_at(cols, any_vars(.>threshold))
+  
+  # peak.df <- peak.df[peak.df$month==weeknb,]
+  peak.df <- peak.df %>% filter(date > "2017-03-01", date<"2017-05-31")
+  
+  peak.df
+}
 
 
 # weeknb<-as.Date('16-19', divide.by)
@@ -154,3 +174,15 @@ UsersRetweetingNumber(df.selected)
 day.df1<-peak.df.fun(df,'t_5',0.2,'16-18')
 day.df2<-peak.df.fun(df,'t_5',0.2,'16-19')
 day.df3<-peak.df.fun(df,'t_5',0.2,'16-20')
+
+
+df.selected<-day.peak(df,"t_6",0.6)
+maxfollowers5<-UserMaxFollowersPeak(df.selected,13)     
+maxretweets5<-UserMaxRetweetsPeak(df.selected,5)     
+TweetsNumber(df.selected)
+RetweetsNumber(df.selected)
+UsersTweetingNumber(df.selected)
+UsersRetweetingNumber(df.selected)
+
+maxfollowers5%>%arrange(desc(from_user_followercount))%>% write_csv("./results/twitter-trained/maxfollowers.csv")
+maxretweets5%>%arrange(desc(retweetcount))%>%write_csv("./results/twitter-trained/maxretweets.csv")
