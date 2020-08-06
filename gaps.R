@@ -9,7 +9,7 @@ data_dir<-"./results/twitter-trained/assign-joined/"
 options <- commandArgs(trailingOnly = TRUE)
 m<-options[1]
 # filename<-paste0("sorted-assign-",m,".csv")
-filename<-paste0("assign-",m,".csv")
+filename<-paste0("sorted-assign-",m,".csv")
 df <- read_csv(paste0(data_dir,filename), col_types = cols (id = col_character()))
 df$date<-as.Date(df$date)
 
@@ -28,5 +28,5 @@ probs.tweets<-df%>%select(-from_user_id,-from_user_name,-from_user_followercount
   gaps <- full_join(grouped.tweets,all.dates) %>% 
     arrange(date)
   
-  as.data.frame(gaps) %>% write_csv(paste0("./results/twitter-trained/gaps-",m,".csv"))
+  as.data.frame(gaps) %>% write_csv(paste0("./results/twitter-trained/gaps/gaps-",m,".csv"))
   

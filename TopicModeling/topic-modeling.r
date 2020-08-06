@@ -11,24 +11,27 @@ library(readr)
 
 
 ####selected parameters to check the results####
- k_list<-9
+ # k_list<-9
 # k_list <- c(5,10)
+k_list<-seq(5,10)
 alpha<-0.1 # 0.alpha value
 ngram<- 1#ngrams
 
-data_name<-"twitter-2M"
-data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
+# data_name<-"twitter-2M"
+# data_dir<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
 
 # data_name<-"guardian-comments"
 # data_dir<-"./data/guardian/full_comments_guardian.csv"
 
-# data_name <- "guardian-articles"
-# data_dir <- "./data/guardian/full_articles_guardian.csv"
+data_name <- "guardian-articles"
+data_dir <- "./data/guardian/full_articles_guardian.csv"
 
 # rds_dir <- paste0("./results/",data_name,"/")
 # model_dir <- paste0("./results/",data_name,"/k-",k_list)
-rds_dir<-paste0("./results/twitter-2M")
-model_dir<-paste0("./results/twitter-2M")
+# rds_dir<-paste0("./results/twitter-2M")
+# model_dir<-paste0("./results/twitter-2M")
+rds_dir <-paste0("./results/ga/")
+model_dir<-rds_dir
 
 exp_name<-paste0(data_name,"-alpha-",alpha,"-ngram-",ngram)
 coherence_name<- paste0("coherence-",exp_name,".pdf")
@@ -51,8 +54,9 @@ if(data_name %like% "twitter"){
   data$from_user_name<-NULL
   data$from_user_followercount<-NULL
 }else{
-  data<-read_csv2(data_dir, col_types = cols (id = col_character()))
-  
+  org<-read_csv2(data_dir, col_types = cols (id = col_character()))
+  data <- org %>% 
+    filter(text!="")
   # data<- read.csv2(data_dir, stringsAsFactors = FALSE)
 }
 

@@ -6,8 +6,8 @@ library(readr)
 library(scales)
 
 selected.topic.yes<-F
-retweets.plots<-F
-tweets.plots<-T
+retweets.plots<-T
+tweets.plots<-F
 selected.topic<-"world, action 6"
 
 xlabel<-'Date'
@@ -25,21 +25,21 @@ topics.labs.fun<-function(labfilename){
 
 col <- c("#CC6666", "#9999CC", "#66CC99") # colors for plots
 
-topic.labels<-topics.labs.fun("./results/twitter-trained/k-9-topic-words.csv")
-global.means.rt<-read_csv("./results/twitter-trained/k9-global-means-retweets.csv")
+topic.labels<-topics.labs.fun("../results/twitter-trained/k-9-topic-words.csv")
+global.means.rt<-read_csv("../results/twitter-trained/k9-global-means-retweets.csv")
 global.means.rt <- global.means.rt %>% mutate(topic=factor(topic,levels = 1:9,labels=topic.labels$label))
-global.means<-read_csv("./results/twitter-trained/k9-global-means.csv")
+global.means<-read_csv("../results/twitter-trained/k9-global-means.csv")
 global.means <- global.means %>% mutate(topic=factor(topic,levels = 1:9,labels=topic.labels$label))
 
 # data_dir<-"./results/twitter-trained/sorted/"
-data_dir<-"./results/twitter-trained/assign-joined/"
+data_dir<-"../results/twitter-trained/sorted/"
 
 
 options <- commandArgs(trailingOnly = TRUE)
 m<-options[1]
 # filename<-paste0("sorted-assign-",m,".csv")
-filename<-paste0("assign-",m,".csv")
-res_dir<-"./results/twitter-trained/daily-probs/"
+filename<-paste0("sorted-assign-",m,".csv")
+res_dir<-"../results/twitter-trained/probabilities-day/"
 
 df <- read_csv(paste0(data_dir,filename), col_types = cols (id = col_character()))
 df$date<-as.Date(df$date)
@@ -112,23 +112,23 @@ if(retweets.plots){ #plots for RT+tweets and RT only
     facet_wrap(.~topic, ncol=2)
   ggsave(paste0(res_dir,"k9-", xlabel, "-retweets",m,".pdf"), device = "pdf")
   
-  topic6<-plot.retweets%>%filter(topic == selected.topic)
-  global.means.rt.t6<-global.means.rt%>%filter(topic == selected.topic)
-  
-  p<-ggplot(topic6, aes(x=date,y=sum_probability))+
-    geom_bar(stat="identity",position="stack")+
-    # ylim(0.0, (max(topic6$sum_probability)))+
-    ylim(0.0, 0.38)+
-    # geom_hline(data=global.means.t6, aes(yintercept = gtp), lty="dashed",color=col[1])+
-    geom_hline(data=global.means.rt.t6, aes(yintercept = gtp), lty="dashed",color=col[3])+
-    # theme(axis.text.x = element_text(angle = 90))+
-    ggtitle(paste0("Probability of retweets only (rt>1)"))+
-    scale_x_date(labels = date_format("%B-%Y")) +
-    xlab(xlabel)+
-    ylab("Probability")
-  ggsave(paste0(res_dir,"T6_k9-", xlabel, "-retweets",m,".pdf"), device = "pdf")
-  
-  save(p,file="./results/twitter-trained/T6-retweets.RData")  
+  # topic6<-plot.retweets%>%filter(topic == selected.topic)
+  # global.means.rt.t6<-global.means.rt%>%filter(topic == selected.topic)
+  # 
+  # p<-ggplot(topic6, aes(x=date,y=sum_probability))+
+  #   geom_bar(stat="identity",position="stack")+
+  #   # ylim(0.0, (max(topic6$sum_probability)))+
+  #   ylim(0.0, 0.38)+
+  #   # geom_hline(data=global.means.t6, aes(yintercept = gtp), lty="dashed",color=col[1])+
+  #   geom_hline(data=global.means.rt.t6, aes(yintercept = gtp), lty="dashed",color=col[3])+
+  #   # theme(axis.text.x = element_text(angle = 90))+
+  #   ggtitle(paste0("Probability of retweets only (rt>1)"))+
+  #   scale_x_date(labels = date_format("%B-%Y")) +
+  #   xlab(xlabel)+
+  #   ylab("Probability")
+  # ggsave(paste0(res_dir,"T6_k9-", xlabel, "-retweets",m,".pdf"), device = "pdf")
+  # 
+  # save(p,file="./results/twitter-trained/T6-retweets.RData")  
 
 } 
 
@@ -158,29 +158,29 @@ if(tweets.plots){
     facet_wrap(.~topic, ncol=2)
   ggsave(paste0(res_dir,"k9-", xlabel, "-tweets",m,".pdf"), device = "pdf")
   
-if(selected.topic.yes){  
-  topic6<-grouped.tweets%>%filter(topic == selected.topic)
-  global.means.t6<-global.means%>%filter(topic == selected.topic)
-  
-  g<-ggplot(topic6, aes(x=date,y=sum_probability))+
-    geom_bar(stat="identity",position="stack")+
-    # ylim(0.0, (max(topic6$sum_probability)))+
-    ylim(0.0, 0.38)+
-    geom_hline(data=global.means.t6, aes(yintercept = gtp), lty="dashed",color=col[1])+
-    # geom_hline(data=global.means.rt, aes(yintercept = gtp), lty="dashed",color=col[3])+
-    # theme(axis.text.x = element_text(angle = 90))+
-    ggtitle("Probability of tweets only")+
-    scale_x_date(labels = date_format("%B-%Y")) +
-    xlab(xlabel)+
-    ylab("Probability")
-  ggsave(paste0(res_dir,"T6_k9-", xlabel, "-tweets",m,".pdf"), device = "pdf")
-  save(g,file="./results/twitter-trained/T6-tweets.Rdata")
-  
-}  
+  if(selected.topic.yes){  
+    topic6<-grouped.tweets%>%filter(topic == selected.topic)
+    global.means.t6<-global.means%>%filter(topic == selected.topic)
+    
+    g<-ggplot(topic6, aes(x=date,y=sum_probability))+
+      geom_bar(stat="identity",position="stack")+
+      # ylim(0.0, (max(topic6$sum_probability)))+
+      ylim(0.0, 0.38)+
+      geom_hline(data=global.means.t6, aes(yintercept = gtp), lty="dashed",color=col[1])+
+      # geom_hline(data=global.means.rt, aes(yintercept = gtp), lty="dashed",color=col[3])+
+      # theme(axis.text.x = element_text(angle = 90))+
+      ggtitle("Probability of tweets only")+
+      scale_x_date(labels = date_format("%B-%Y")) +
+      xlab(xlabel)+
+      ylab("Probability")
+    ggsave(paste0(res_dir,"T6_k9-", xlabel, "-tweets",m,".pdf"), device = "pdf")
+    save(g,file="./results/twitter-trained/T6-tweets.Rdata")
+    
+  }  
 }
 
-library(gridExtra)
-
-pdf("T6-tweets-retweets2.pdf")
-grid.arrange(g, p, nrow = 2)
-dev.off()
+# library(gridExtra)
+# 
+# pdf("T6-tweets-retweets2.pdf")
+# grid.arrange(g, p, nrow = 2)
+# dev.off()

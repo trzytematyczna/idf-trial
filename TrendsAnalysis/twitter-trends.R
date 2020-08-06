@@ -5,8 +5,14 @@ library(readr)
 library(tidyr)
 
 
-data_dir <- "./results/twitter-trained/assign-joined/assign-3.csv"
-df<-read_csv(data_dir, col_types = cols (id = col_character()))
+data_dir <- "../results/twitter-trained/sorted/"
+res_dir<-"../results/twitter-trained/trends/"
+options <- commandArgs(trailingOnly = TRUE)
+m<-options[1]
+# filename<-paste0("sorted-assign-",m,".csv")
+filename<-paste0("sorted-assign-",m,".csv")
+
+df<-read_csv(paste0(data_dir,filename), col_types = cols (id = col_character()))
 df$date<-as.Date(df$date)
 # colnames(df)<-c("id","date","retweetcount","from_user_id","from_user_name","from_user_followercount","text","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
 # df<-df[1:2000000,]
@@ -159,7 +165,7 @@ p <- ggplot(data, aes(x=index, y=sum_probability)) +
   theme(axis.text.x = element_text(angle = 90, hjust=1))
 
 p
-ggsave("./results/twitter-trained/green-trends-all.pdf", device = "pdf")
+ggsave(paste0(res_dir,"events-",m,".pdf"), device = "pdf",scale=2)
 
 #segments with trends
 q <- ggplot(data, aes(x=index, y=sum_probability)) +
@@ -171,5 +177,5 @@ q <- ggplot(data, aes(x=index, y=sum_probability)) +
             aes(xmin=index, xmax=index+1, ymin=0, ymax=0.3, fill=trend),
             alpha=0.3) +
   facet_grid(topic~., scales = "free_y")
-ggsave("./results/twitter-trained/trands-events.pdf", device = "pdf")
+ggsave(paste0(res_dir,"trends-",m,".pdf"), device = "pdf",scale=2)
 

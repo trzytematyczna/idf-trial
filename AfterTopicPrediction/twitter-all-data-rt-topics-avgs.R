@@ -5,7 +5,7 @@ library(DescTools)
 library(ggplot2)
 library(readr)
 
-data_dir<-"./results/twitter-trained/assign-joined/"
+data_dir<-"./results/twitter-trained/sorted/"
 
 data.files <- list.files(data_dir)
 res_dir<-"./results/twitter-trained/"

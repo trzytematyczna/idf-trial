@@ -102,7 +102,7 @@ top20.summary <- top20.summary %>% group_by(topic, word) %>% filter(row_number()
 word_topic_freq <- left_join(top20.summary, original_tf, by = c("word" = "term"))
 
 # top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/twitter-trained/k-9-topic-words.csv")
-# top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/guardian-articles/k-10-topic-words.csv")
+top20.summary %>% arrange(topic, value) %>% group_by(topic) %>% top_n(2) %>% write_csv("./results/guardian-articles/k-10-topic-words.csv")
 
 # document -> topic
 document_topic <- data.frame(model$theta)
@@ -114,11 +114,12 @@ document_topic <- document_topic %>%
   tidyr::separate(topic, into =c("t","topic")) %>% 
   select(-t) %>% 
   group_by(document) %>% 
-  arrange(desc(value)) %>%
+  arrange(desc(value)) 
+
+document_topic%>%write_csv("./results/guardian-predicted.csv") ## delete filter row number == 1 to have all probabilities
+
+document_topic <- document_topic %>%
   filter(row_number() ==1)
-
-# document_topic%>%write_csv("./results/guardian-predicted.csv") ## delete filter row number == 1 to have all probabilities
-
 #Visualising of topics in a dendrogram
 #probability distributions called Hellinger distance, distance between 2 probability vectors
 model$topic_linguistic_dist <- CalcHellingerDist(model$phi)

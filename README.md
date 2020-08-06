@@ -18,8 +18,18 @@ TopicPrediction
       -->khiva-prediction-test-data + khiva-run-prediction-test-data
   4. add id to all 54 files:  add-ids-to-predict-results-x54-before-twitter-join-predictions.sh
   5. twitter-join-predictions-with-tweetinfo (oldname: 9assign-join) -> join redictions with info tweets (add_ids-to-predict-results-54.sh), create 6 files with preditions + info for tweets
+6. sort the 6 files:
+      - join 6 files to one awk '(NR == 1) || (FNR > 1)' assign-*.csv > assign-all.csv
+      - sort the joined file by date { head -n1 assign-all.csv; for f in assign-all.csv; do sort -t, -k 2 assign-all.csv; done; }  > sorted-assign-all.csv
+      - get rid of end header (why is it here ?) head -n -1 sorted-assign-all.csv > temp.txt ; mv temp.txt sorted-assign-all.csv
+      - divide the sorted joined file into 6 ones cat sorted-assign-all.csv | parallel --header : --pipe -N4106762 'cat >sorted-assign-{#}.csv'
+
+Gaps:
+1. run gaps run-gaps.sh using gaps.r on SORTED 6 files (topicpredicton pt 6)
+2. join 6 files to one awk '(NR == 1) || (FNR > 1)' gaps-*.csv > gaps-all.txt
 
 AfterPrediction:
+
   1. (on raw predictions from TopicPrediction/prediction-test-data) twitter-all-data-tweets-topics-avgs (oldname: 8sum-assignments-plots.r) -> uses trained data from 7predict (only id + topic probability value), counts topic probability means for all topics only for tweets trained for all files (500k) 
   2. (on data after TopicPrediciton/twitter-join-predictions-with-tweetinfo) twitter-all-data-rt-topics-avgs (oldname: 8.1-sum-assignments-plots-retweets.r) -> uses joined data (predictions + info about tweets, devided into 6 files), counts topics probability means for all topics using tweets and RT info (!)     
   3. twitter-probability-timelines-aggregated (oldname: 10assigned-plots.r) probability timeline plots divided by month/week using tweets only/retweets only/rt+tweets

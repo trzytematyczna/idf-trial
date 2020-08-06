@@ -47,6 +47,14 @@ pred <- read_csv(pred_path)
 
 df<-merge(info,pred, by.x="id", by.y="document")
 
+df <- df %>% 
+  filter(text!="")
+# df%>%select(-type,-authors_nb,-tags_nb,-date_modified,-share_count,-comment_nb)%>%
+#   rename(date = date_published)%>%
+#   rename(probability=value)%>%
+#   arrange(date,topic)%>%
+#   write_csv("./results/guardian-articles/guardian-articles-predicted-with-partial-info.csv")
+
 global.means <- df%>% 
   group_by(topic) %>%
   summarize(gtp=mean(value))
@@ -89,7 +97,9 @@ grouped.probs <- probs%>%
     summarise(sum_probability=mean(probability))
   
 grouped.probs<-grouped.probs%>%  mutate(topic=factor(topic,levels = 1:10,  labels=topic.labels$label))
-  
+
+grouped.probs %>% write_csv(paste0(res_dir,"guardian-probs-daily-all-years.csv"))
+
 
 g<-ggplot(grouped.probs, aes(x=date,y=sum_probability))+
   geom_bar(stat="identity",position="stack")+
@@ -124,7 +134,6 @@ if(monthly.yes | weekly.yes){
       geom_bar(stat="identity",position="stack")+
       ylim(0.0, (max(grouped.probs$sum_probability)))+
       geom_hline(data=global.means, aes(yintercept = gtp), lty="dashed",color=col[1])+
-      # geom_hline(data=global.means.rt, aes(yintercept = gtp), lty="dashed",color=col[3])+
       theme(axis.text.x = element_text(angle = 90))+
       ggtitle(paste0("Probability of Guardian articles year ",y))+
       xlab(xlabel)+
@@ -143,11 +152,11 @@ if(monthly.yes | weekly.yes){
   grouped.probs<-grouped.probs%>%  mutate(topic=factor(topic,levels = 1:10,  labels=topic.labels$label))
   
   
+  
   g<-ggplot(grouped.probs, aes(x=div,y=sum_probability))+
     geom_bar(stat="identity",position="stack")+
     ylim(0.0, (max(grouped.probs$sum_probability)))+
     geom_hline(data=global.means, aes(yintercept = gtp), lty="dashed",color=col[1])+
-    # geom_hline(data=global.means.rt, aes(yintercept = gtp), lty="dashed",color=col[3])+
     theme(axis.text.x = element_text(angle = 90))+
     ggtitle("Probability of Guardian Articles")+
     xlab(xlabel)+

@@ -5,9 +5,13 @@ library(readr)
 library(tidyr)
 
 
-
-grouped.sp <- read_csv("./results/guardian-articles/all-day-probs-mars17-may17.csv")
+year<-2019
+# grouped.sp <- read_csv("./results/guardian-articles-old/all-day-probs-mars17-may17.csv")
+guardian.data <- read_csv("./results/guardian-articles/probabilities/guardian-probs-daily-all-years.csv", col_types = cols(date = col_date()))
 # grouped.sp<-selc
+grouped.sp.filtered <- guardian.data %>% filter(date>as.Date(paste0(year,"-01-01")),date<as.Date(paste0(year,"-12-31")))
+grouped.sp <- grouped.sp.filtered %>% 
+  filter(!is.na(grouped.sp.filtered$date))
 
 data <- grouped.sp %>%
   group_by(topic) %>%
@@ -103,7 +107,7 @@ trends_trend <- trends_segments %>%
 
 # Prepare labels for dates
 label_dates <- data %>%
-  filter(topic == 1) %>%
+  filter(topic == data$topic[1]) %>%
   pull(date) %>%
   as.character()
 num_of_indices <- data %>%
@@ -124,9 +128,9 @@ p <- ggplot(data, aes(x=index, y=sum_probability)) +
   xlab("Probability")+
   ylab("Date")+
   scale_x_continuous(breaks = seq(1,num_of_indices,3), labels=label_dates[seq(1,num_of_indices,3)]) +
-  theme(axis.text.x = element_text(angle = 45, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, hjust=1))
 p
- ggsave("./results/guardian-articles/green-events-mars-may2017.pdf", device = "pdf")
+ggsave(paste0("./results/guardian-articles/guardian-trends/guardian-events-",year,".pdf"), device = "pdf", scale = 2)
 
 #segments with trends
 q <- ggplot(data, aes(x=index, y=sum_probability)) +
@@ -135,8 +139,9 @@ q <- ggplot(data, aes(x=index, y=sum_probability)) +
   geom_hline(data=avg_data, aes(yintercept=mean), lty=2, color="red") +
   geom_rect(data=trends_trend,
             inherit.aes = FALSE,
-            aes(xmin=index, xmax=index+1, ymin=0, ymax=0.3, fill=trend),
+            aes(xmin=index, xmax=index+1, ymin=0, ymax=0.7, fill=trend),
             alpha=0.3) +
   facet_grid(topic~., scales = "free_y")
-# ggsave("./results/twitter-trained/trands-events.pdf", device = "pdf")
+q
+ggsave(paste0("./results/guardian-articles/guardian-trends/guardian-trends-",year,".pdf"), device = "pdf", scale = 2)
 

@@ -6,14 +6,15 @@ library(DescTools)
 library(tidyr)
 library(ggplot2)
 library(lubridate)
+library(readr)
 
 # data_name<-"twitter-2M"
 
 equals.yes<-F
-with.retweets<-T
+with.retweets<-F
 do.entropy<-F
 week.yes<-F
-month.yes<-F
+month.yes<-T
 
 if(week.yes == TRUE){
   divide.by <- '%y-%V'
@@ -24,7 +25,7 @@ if(week.yes == TRUE){
 }
 
 topics.labs.fun<-function(labfilename){
-  topic.labels<-read.csv(labfilename)
+  topic.labels<-read_csv(labfilename)
   topic.labels<-topic.labels%>% 
     group_by(topic) %>%
     summarise(s=paste(word, collapse = ", "))
@@ -36,25 +37,21 @@ topics.labs.fun<-function(labfilename){
 
 col <- c("#CC6666", "#9999CC", "#66CC99") # colors for plots
 
-topic.labels<-topics.labs.fun("./results/twitter-trained/k-9-topic-words.csv")
-global.means.rt<-read.csv2("./results/twitter-trained/k9-global-means-retweets.csv")
+topic.labels<-topics.labs.fun("../results/twitter-trained/k-9-topic-words.csv")
+global.means.rt<-read_csv("../results/twitter-trained/k9-global-means-retweets.csv")
 global.means.rt <- global.means.rt %>% mutate(topic=factor(topic,levels = 1:9,labels=topic.labels$label))
-global.means<-read.csv2("./results/twitter-trained/k9-global-means.csv")
+global.means<-read_csv("../results/twitter-trained/k9-global-means.csv")
 global.means <- global.means %>% mutate(topic=factor(topic,levels = 1:9,labels=topic.labels$label))
 
-data_dir<-"./results/twitter-trained/sorted/"
+data_dir<-"../results/twitter-trained/sorted/"
 
 options <- commandArgs(trailingOnly = TRUE)
 m<-options[1]
 filename<-paste0("sorted-assign-",m,".csv")
-# learning.data.file<-"./data/twitter/split-2M/twitter-2M-sampled.csv"
-res_dir<-"./results/twitter-trained/asd/"
-# data.files<-data.files[1:2]
-# i<-data.files[1]
-  df <- read.csv(paste0(data_dir,filename), stringsAsFactors = FALSE, sep=",", quote = "\"", fileEncoding = "UTF-8", na.strings = NA)
-  # df$date<-as.Date(df$date)
+res_dir<-"../results/twitter-trained/probabilities-month/"
+
+  df <- read_csv(paste0(data_dir,filename), col_types = cols (id = col_character()))
   df$date<-as_date(df$date)
-  colnames(df)<-c("id","date","retweetcount","from_user_id","from_user_name","from_user_followercount","text","t_1","t_2","t_3","t_4","t_5","t_6","t_7","t_8","t_9")
   
   if(equals.yes==TRUE){
     #equals <- df[df[,7:15]== 0.111111111111111,]
@@ -139,7 +136,7 @@ res_dir<-"./results/twitter-trained/asd/"
     grouped.sp <- probs%>%
       group_by(month,topic) %>%
       summarise(sum_probability=mean(probability))
-    # global.means<-read.csv2("./results/twitter-trained/k9-global-means.csv")
+    # global.means<-read_csv2("./results/twitter-trained/k9-global-means.csv")
   
   
   
